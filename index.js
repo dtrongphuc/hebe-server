@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const initProductAPI = require('./routes/api-Product.route');
 const initReviewAPI = require('./routes/api-Review.route');
+const initBrandAPI = require('./routes/api-Brand.route');
 const app = express();
 
 const port = 8080;
@@ -26,9 +27,9 @@ app.use(cors(corsConfig));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use('/assets', express.static('assets'));
 initProductAPI(app);
 initReviewAPI(app);
+initBrandAPI(app);
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);

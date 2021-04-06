@@ -16,7 +16,7 @@ const productSchema = new Schema(
 			ref: 'Sale',
 			required: false,
 		},
-		description: Array,
+		description: String,
 		variant: {
 			type: Schema.Types.ObjectId,
 			ref: 'Variant',
