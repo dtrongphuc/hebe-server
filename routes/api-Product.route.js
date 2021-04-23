@@ -1,19 +1,22 @@
 const express = require('express');
 const multer = require('multer');
-const upload = multer({ dest: 'assets/uploads/' });
+const upload = multer({ dest: 'uploads/' });
 let Router = express.Router();
 
 const productController = require('../controllers/product.controller');
+const prMiddleware = require('../middleware/products/product.middleware.js');
 
 let initProductAPI = (app) => {
-	Router.get('/featured-products', productController.getFeaturedProduct);
-	Router.get('/products/:productId', productController.getSingleProduct);
+	Router.get('/front-page', productController.getFrontPageProducts);
+	Router.get('/getAll', productController.getAll);
+	Router.get('/:path', productController.getProduct);
 	Router.post(
-		'/post-product',
+		'/create',
 		upload.array('images'),
+		[prMiddleware.validation, prMiddleware.parseData],
 		productController.postProduct
 	);
-	return app.use('/api', Router);
+	return app.use('/api/product', Router);
 };
 
 module.exports = initProductAPI;

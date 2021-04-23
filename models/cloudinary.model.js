@@ -36,4 +36,12 @@ module.exports = {
 	uploadBrandImage: (file) => {
 		return uploadSingleFile(file, 'brands');
 	},
+
+	uploadProductImages: (files) => {
+		return uploadMultipleFiles(files, 'products');
+	},
+
+	uploadGroupImage: (file) => {
+		return uploadSingleFile(file, 'groups');
+	},
 };

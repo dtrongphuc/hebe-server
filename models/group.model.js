@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const brandSchema = new Schema(
+const groupSchema = new Schema(
 	{
 		name: String,
 		path: String,
@@ -15,6 +15,6 @@ const brandSchema = new Schema(
 	{ versionKey: false }
 );
 
-let Brand = mongoose.model('Brand', brandSchema, 'brands');
+let Groups = mongoose.model('Group', groupSchema, 'groups');
 
-module.exports = Brand;
+module.exports = Groups;

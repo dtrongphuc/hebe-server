@@ -4,30 +4,38 @@ const Schema = mongoose.Schema;
 const productSchema = new Schema(
 	{
 		name: String,
+		path: String,
 		brand: {
 			type: Schema.Types.ObjectId,
 			ref: 'Brand',
 			required: true,
 		},
-		path: String,
-		price: Number,
-		salePrice: {
+		group: {
 			type: Schema.Types.ObjectId,
-			ref: 'Sale',
+			ref: 'Group',
 			required: false,
 		},
+		price: Number,
+		salePrice: Number,
 		description: String,
-		variant: {
-			type: Schema.Types.ObjectId,
-			ref: 'Variant',
-			required: true,
-		},
-		images: [
+		variants: [
 			{
-				index: Number,
-				link: String,
+				color: String,
+				details: [
+					{
+						size: String,
+						quantity: Number,
+					},
+				],
 			},
 		],
+		images: Array,
+		avatarIndex: Number,
+		quantity: Number,
+		showing: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	{ timestamps: { createdAt: 'created_at' } }
 );

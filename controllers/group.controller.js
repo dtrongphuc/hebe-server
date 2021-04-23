@@ -1,14 +1,14 @@
-const Brand = require('../models/brand.model');
+const Group = require('../models/group.model');
 const Product = require('../models/product.model');
 const cloudinary = require('../models/cloudinary.model');
 
 module.exports = {
-	createNewBrand: async (req, res) => {
+	createNewGroup: async (req, res) => {
 		try {
 			const { name, description } = req.body;
 			const path = name.toLowerCase().replace(/ /g, '-');
-			let result = await cloudinary.uploadBrandImage(req.file.path);
-			await Brand.create({
+			let result = await cloudinary.uploadGroupImage(req.file.path);
+			await Group.create({
 				name,
 				path,
 				image: result.url,
@@ -17,7 +17,7 @@ module.exports = {
 
 			return res.status(200).json({
 				success: true,
-				message: 'create new brand successful',
+				message: 'create new group successful',
 			});
 		} catch (error) {
 			return res.status(500).json({
@@ -27,13 +27,13 @@ module.exports = {
 		}
 	},
 
-	getAllBrands: async (req, res) => {
+	getAllGroups: async (req, res) => {
 		try {
-			let brands = await Brand.find({});
+			let groups = await Group.find({});
 
 			return res.status(200).json({
 				success: true,
-				brands,
+				groups,
 			});
 		} catch (error) {
 			return res.status(500).json({
@@ -43,20 +43,20 @@ module.exports = {
 		}
 	},
 
-	getBrandCollections: async (req, res) => {
+	getGroupCollections: async (req, res) => {
 		try {
 			const { path } = req.params;
 
-			const brand = await Brand.findOne({ path: path });
+			const group = await Group.findOne({ path: path });
 
 			const products = await Product.find({
-				brand: brand._id,
+				group: group._id,
 			});
 
 			return res.status(200).json({
 				success: true,
 				data: {
-					info: brand,
+					info: group,
 					products,
 				},
 			});

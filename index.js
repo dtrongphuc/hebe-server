@@ -4,6 +4,7 @@ const cors = require('cors');
 const initProductAPI = require('./routes/api-Product.route');
 const initReviewAPI = require('./routes/api-Review.route');
 const initBrandAPI = require('./routes/api-Brand.route');
+const initGroupAPI = require('./routes/api-Group.route');
 const app = express();
 
 const port = 8080;
@@ -30,6 +31,7 @@ app.use(express.json());
 initProductAPI(app);
 initReviewAPI(app);
 initBrandAPI(app);
+initGroupAPI(app);
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);

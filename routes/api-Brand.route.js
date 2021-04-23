@@ -13,6 +13,7 @@ let initBrandAPI = (app) => {
 	);
 
 	Router.get('/get-all', brandController.getAllBrands);
+	Router.get('/:path', brandController.getBrandCollections);
 	return app.use('/api/brand', Router);
 };
 
