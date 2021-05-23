@@ -56,7 +56,10 @@ module.exports = {
 				saleprice,
 				description,
 				variants,
-				images: imagesUrl.map((image) => image.url),
+				images: imagesUrl.map((image) => ({
+					link: image.url,
+					publicId: image.publicId,
+				})),
 				quantity,
 				avatarIndex,
 				path,
@@ -73,7 +76,7 @@ module.exports = {
 		}
 	},
 
-	getProduct: async (req, res) => {
+	getProductByPath: async (req, res) => {
 		try {
 			const { path } = req.params;
 
@@ -89,6 +92,65 @@ module.exports = {
 			}).populate('brand');
 
 			return res.status(200).json(productMatched);
+		} catch (error) {
+			return res.status(500).json({
+				success: false,
+			});
+		}
+	},
+
+	getProductById: async (req, res) => {
+		try {
+			const { productId } = req.params;
+			if (!productId) {
+				return res.status(403).json({
+					success: false,
+					error: 'productId is required',
+				});
+			}
+
+			const productMatched = await Product.findById(productId).select('-__v');
+			return res.status(200).json({
+				success: true,
+				product: productMatched,
+			});
+		} catch (error) {
+			return res.status(500).json({
+				success: false,
+			});
+		}
+	},
+
+	getEditProduct: async (req, res) => {
+		try {
+			const { productId } = req.params;
+			if (!productId) {
+				return res.status(403).json({
+					success: false,
+					error: 'productId is required',
+				});
+			}
+
+			const productMatched = (
+				await Product.findById(productId).select(
+					'-__v -created_at -updatedAt -showing -path'
+				)
+			).toObject();
+			let cloudImages = productMatched.images.map((image) => {
+				return {
+					...image,
+					isDeleted: false,
+				};
+			});
+			delete productMatched.images;
+			return res.status(200).json({
+				success: true,
+				product: {
+					...productMatched,
+					cloudImages: cloudImages,
+					newImages: [],
+				},
+			});
 		} catch (error) {
 			return res.status(500).json({
 				success: false,

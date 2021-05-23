@@ -9,7 +9,9 @@ const prMiddleware = require('../middleware/products/product.middleware.js');
 let initProductAPI = (app) => {
 	Router.get('/front-page', productController.getFrontPageProducts);
 	Router.get('/getAll', productController.getAll);
-	Router.get('/:path', productController.getProduct);
+	Router.get('/path/:path', productController.getProductByPath);
+	Router.get('/id/:productId', productController.getProductById);
+	Router.get('/edit/id/:productId', productController.getEditProduct);
 	Router.post(
 		'/create',
 		upload.array('images'),

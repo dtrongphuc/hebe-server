@@ -11,7 +11,10 @@ module.exports = {
 			await Group.create({
 				name,
 				path,
-				image: result.url,
+				image: {
+					publicId: result.publicId,
+					link: result.url,
+				},
 				description,
 			});
 

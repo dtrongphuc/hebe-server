@@ -16,7 +16,10 @@ const productSchema = new Schema(
 			required: false,
 		},
 		price: Number,
-		salePrice: Number,
+		saleprice: {
+			type: Number,
+			default: 0,
+		},
 		description: String,
 		variants: [
 			{
@@ -29,7 +32,12 @@ const productSchema = new Schema(
 				],
 			},
 		],
-		images: Array,
+		images: [
+			{
+				publicId: String,
+				link: String,
+			},
+		],
 		avatarIndex: Number,
 		quantity: Number,
 		showing: {

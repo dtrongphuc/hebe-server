@@ -18,6 +18,7 @@ const uploadSingleFile = (file, folder) => {
 					fs.unlinkSync(file);
 					resolve({
 						url: result.secure_url,
+						publicId: result.public_id,
 					});
 				}
 			})

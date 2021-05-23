@@ -5,7 +5,10 @@ const groupSchema = new Schema(
 	{
 		name: String,
 		path: String,
-		image: String,
+		image: {
+			publicId: String,
+			link: String,
+		},
 		description: String,
 		showing: {
 			type: Boolean,
