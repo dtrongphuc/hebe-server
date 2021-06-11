@@ -148,7 +148,7 @@ module.exports = {
 				product: {
 					...productMatched,
 					cloudImages: cloudImages,
-					newImages: [],
+					images: [],
 				},
 			});
 		} catch (error) {
