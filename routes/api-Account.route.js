@@ -1,6 +1,7 @@
 const express = require('express');
 const accountController = require('../controllers/account.controller');
 const accountMiddleware = require('../middleware/account/account.middleware');
+const authJwt = require('../middleware/passport/authenticator');
 var Router = express.Router();
 
 let initAccountAPI = (app) => {
@@ -11,6 +12,21 @@ let initAccountAPI = (app) => {
 		accountMiddleware.hashPassword,
 		accountController.createAccount
 	);
+
+	// LOGIN
+	Router.post(
+		'/login',
+		accountMiddleware.loginValidate,
+		accountMiddleware.comparePassword,
+		accountController.login
+	);
+
+	// GET INFO
+	Router.get('/info', authJwt, (req, res) => {
+		res.json({
+			content: 'this is private route',
+		});
+	});
 
 	return app.use('/api/account', Router);
 };

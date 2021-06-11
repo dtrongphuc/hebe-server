@@ -1,7 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const APIRoutes = require('./routes/api');
+const passport = require('passport');
 const app = express();
 
 const port = 8080;
@@ -24,6 +26,7 @@ const corsConfig = {
 app.use(cors(corsConfig));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+// app.use(passport.initialize());
 
 APIRoutes(app);
 
