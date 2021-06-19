@@ -18,6 +18,6 @@ const groupSchema = new Schema(
 	{ versionKey: false }
 );
 
-let Groups = mongoose.model('Group', groupSchema, 'groups');
+let Group = mongoose.model('Group', groupSchema, 'groups');
 
-module.exports = Groups;
+module.exports = Group;

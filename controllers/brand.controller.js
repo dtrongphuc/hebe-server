@@ -58,10 +58,8 @@ module.exports = {
 
 			return res.status(200).json({
 				success: true,
-				data: {
-					info: brand,
-					products,
-				},
+				info: brand,
+				products,
 			});
 		} catch (error) {
 			return res.status(404).json({

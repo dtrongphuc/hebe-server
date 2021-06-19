@@ -3,6 +3,7 @@ const initBrandAPI = require('./api-Brand.route');
 const initGroupAPI = require('./api-Group.route');
 const initProductAPI = require('./api-Product.route');
 const initReviewAPI = require('./api-Review.route');
+const initCollectionAPI = require('./api-Collection.route');
 
 const APIRoutes = (app) => {
 	initAccountAPI(app);
@@ -10,6 +11,7 @@ const APIRoutes = (app) => {
 	initReviewAPI(app);
 	initBrandAPI(app);
 	initGroupAPI(app);
+	initCollectionAPI(app);
 };
 
 module.exports = APIRoutes;
