@@ -13,13 +13,15 @@ module.exports = {
 				email,
 				password: hashedPw,
 			});
-			let token = jwtHelper.createToken(account._id);
-
-			res.header('Authorization', `Bearer ${token}`);
+			let token = jwtHelper.createToken({
+				id: account._id,
+				role: account.role,
+			});
 
 			return res.status(200).json({
 				success: true,
 				message: 'Tạo tài khoản thành công',
+				token,
 			});
 		} catch (error) {
 			return res.status(500).json({
@@ -32,18 +34,21 @@ module.exports = {
 	login: async (req, res) => {
 		try {
 			const { account } = res.locals;
-			let token = jwtHelper.createToken({ sub: account._id });
+			let token = jwtHelper.createToken({
+				id: account._id,
+				role: account.role,
+			});
 
-			res.header('Authorization', `Bearer ${token}`);
 			return res.status(200).json({
 				success: true,
 				message: 'Đăng nhập thành công',
+				token,
 			});
 		} catch (error) {
 			console.log(error);
 			return res.status(500).json({
 				success: false,
-				message: error,
+				message: 'Login failed',
 			});
 		}
 	},

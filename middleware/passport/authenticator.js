@@ -11,7 +11,7 @@ opts.secretOrKey = 'secret';
 passport.use(
 	new JwtStrategy(opts, async function (jwt_payload, done) {
 		try {
-			let account = await Account.findById(jwt_payload.sub);
+			let account = await Account.findById(jwt_payload.id);
 			// Nếu tồn tại tài khoản
 			if (account) {
 				return done(null, account);

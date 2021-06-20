@@ -12,16 +12,35 @@ const isNullOrEmpty = (value) => {
 module.exports = {
 	createAccountValidate: async (req, res, next) => {
 		const { firstname, lastname, email, password } = req.body;
+		const validate = [
+			{
+				message: 'Please enter your first name',
+				inValid: isNullOrEmpty(firstname),
+				inputName: 'firstname',
+			},
+			{
+				message: 'Please enter your last name',
+				inValid: isNullOrEmpty(lastname),
+				inputName: 'lastname',
+			},
+			{
+				message: 'Please enter your email',
+				inValid: isNullOrEmpty(email),
+				inputName: 'email',
+			},
+			{
+				message: 'Please enter your password',
+				inValid: isNullOrEmpty(password),
+				inputName: 'password',
+			},
+		];
 
-		if (
-			isNullOrEmpty(firstname) ||
-			isNullOrEmpty(lastname) ||
-			isNullOrEmpty(email) ||
-			isNullOrEmpty(password)
-		) {
-			return res.status(400).json({
+		let inValids = validate.filter((field) => field.inValid === true);
+		if (inValids.length > 0) {
+			return res.status(200).json({
 				success: false,
-				message: 'Vui lòng điền đẩy đủ thông tin',
+				fieldsError: 'input',
+				errors: inValids,
 			});
 		}
 
@@ -30,9 +49,15 @@ module.exports = {
 		});
 
 		if (!!account) {
-			return res.status(400).json({
+			return res.status(200).json({
 				success: false,
-				message: 'Email đã dược đăng ký',
+				fieldsError: 'input',
+				errors: [
+					{
+						message: 'Email has registered',
+						inputName: 'email',
+					},
+				],
 			});
 		}
 
@@ -41,11 +66,26 @@ module.exports = {
 
 	loginValidate: async (req, res, next) => {
 		const { email, password } = req.body;
-
-		if (isNullOrEmpty(email) || isNullOrEmpty(password)) {
-			return res.status(400).json({
+		const validate = [
+			{
+				message: 'Please enter your email',
+				inValid: isNullOrEmpty(email),
+				inputName: 'email',
+				fields: 'input',
+			},
+			{
+				message: 'Please enter your password',
+				inValid: isNullOrEmpty(password),
+				inputName: 'password',
+				fields: 'input',
+			},
+		];
+		let inValids = validate.filter((field) => field.inValid === true);
+		if (inValids.length > 0) {
+			return res.status(200).json({
 				success: false,
-				message: 'Vui lòng điền đẩy đủ thông tin',
+				fieldsError: 'input',
+				errors: inValids,
 			});
 		}
 
@@ -54,9 +94,15 @@ module.exports = {
 		});
 
 		if (!account) {
-			return res.status(400).json({
+			return res.status(200).json({
 				success: false,
-				message: 'Tài khoản hoặc mật khẩu không chính xác',
+				fieldsError: 'input',
+				errors: [
+					{
+						message: 'Email does not exist',
+						inputName: 'email',
+					},
+				],
 			});
 		}
 
@@ -76,6 +122,7 @@ module.exports = {
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
+				fieldsError: 'page',
 				message: 'Lỗi khi hash pw',
 			});
 		}
@@ -88,9 +135,10 @@ module.exports = {
 
 			const isValid = await bcrypt.compare(password, hashedPassword);
 			if (!isValid) {
-				return res.status(400).json({
+				return res.status(200).json({
 					success: false,
-					message: 'Tài khoản hoặc mật khẩu không chính xác',
+					fieldsError: 'page',
+					message: 'Email or password incorrect',
 				});
 			}
 
@@ -98,6 +146,7 @@ module.exports = {
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
+				fieldsError: 'page',
 				message: 'Lỗi khi hash pw',
 			});
 		}
