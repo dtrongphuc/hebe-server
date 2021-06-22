@@ -13,6 +13,12 @@ const accountSchema = new Schema(
 			enum: ['user', 'admin'],
 			default: 'user',
 		},
+		addresses: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: 'Address',
+			},
+		],
 	},
 	{
 		versionKey: false,
