@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const jwtHelper = require('../helpers/jwt');
 const Account = require('../models/account.model');
 
@@ -51,5 +52,13 @@ module.exports = {
 				message: 'Login failed',
 			});
 		}
+	},
+
+	createNewAddress: async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(422).json({ errors: errors.array() });
+		}
+		res.send('ok');
 	},
 };
