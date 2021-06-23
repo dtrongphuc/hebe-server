@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator');
 const jwtHelper = require('../helpers/jwt');
 const Account = require('../models/account.model');
 
@@ -21,20 +20,21 @@ module.exports = {
 
 			return res.status(200).json({
 				success: true,
-				message: 'Tạo tài khoản thành công',
+				msg: 'Tạo tài khoản thành công',
 				token,
 			});
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: error,
+				msg: error,
 			});
 		}
 	},
 
 	login: async (req, res) => {
 		try {
-			const { account } = res.locals;
+			const account = await Account.findOne({ email: req.body?.email });
+
 			let token = jwtHelper.createToken({
 				id: account._id,
 				role: account.role,
@@ -42,23 +42,19 @@ module.exports = {
 
 			return res.status(200).json({
 				success: true,
-				message: 'Đăng nhập thành công',
+				msg: 'Đăng nhập thành công',
 				token,
 			});
 		} catch (error) {
 			console.log(error);
 			return res.status(500).json({
 				success: false,
-				message: 'Login failed',
+				msg: 'Login failed',
 			});
 		}
 	},
 
 	createNewAddress: async (req, res) => {
-		const errors = validationResult(req);
-		if (!errors.isEmpty()) {
-			return res.status(422).json({ errors: errors.array() });
-		}
 		res.send('ok');
 	},
 };

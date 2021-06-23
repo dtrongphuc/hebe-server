@@ -1,7 +1,11 @@
 const express = require('express');
 const accountController = require('../controllers/account.controller');
 const accountMiddleware = require('../middleware/account/account.middleware');
-const { validateAddress } = require('../middleware/account/address.middleware');
+const {
+	validateLogin,
+	validateRegister,
+} = require('../validate/account/account.validate');
+const { validateAddress } = require('../validate/account/address.validate');
 const authJwt = require('../middleware/passport/authenticator');
 var Router = express.Router();
 
@@ -9,7 +13,8 @@ let initAccountAPI = (app) => {
 	// POST NEW ACCOUNT
 	Router.post(
 		'/create',
-		accountMiddleware.createAccountValidate,
+		validateRegister,
+		accountMiddleware.rejectErrors,
 		accountMiddleware.hashPassword,
 		accountController.createAccount
 	);
@@ -17,8 +22,8 @@ let initAccountAPI = (app) => {
 	// LOGIN
 	Router.post(
 		'/login',
-		accountMiddleware.loginValidate,
-		accountMiddleware.comparePassword,
+		validateLogin,
+		accountMiddleware.rejectErrors,
 		accountController.login
 	);
 
@@ -30,7 +35,12 @@ let initAccountAPI = (app) => {
 	});
 
 	//POST NEW ADDRESS
-	Router.post('/address', validateAddress, accountController.createNewAddress);
+	Router.post(
+		'/address',
+		validateAddress,
+		accountMiddleware.rejectErrors,
+		accountController.createNewAddress
+	);
 
 	return app.use('/api/account', Router);
 };
