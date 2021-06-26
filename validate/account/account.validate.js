@@ -24,7 +24,7 @@ exports.validateLogin = [
 				if (account) {
 					const isValid = await bcrypt.compare(value, account.password);
 					if (!isValid) {
-						throw new Error('Password incorrect');
+						Promise.reject('Password incorrect');
 					}
 				}
 			} catch (error) {

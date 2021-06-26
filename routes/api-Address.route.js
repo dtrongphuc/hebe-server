@@ -5,6 +5,8 @@ const rejectMiddleware = require('../middleware/rejectErrors.middleware');
 const {
 	createNewAddress,
 	getAllAddresses,
+	getAddressById,
+	putEditAddress,
 } = require('../controllers/address.controller');
 var Router = express.Router();
 
@@ -19,6 +21,18 @@ let initAddressAPI = (app) => {
 	);
 	//GET ALL ADDRESSES BY ACCOUNT
 	Router.get('/', authJwt, getAllAddresses);
+
+	//GET ADDRESS BY ID
+	Router.get('/get', authJwt, getAddressById);
+
+	//POST NEW ADDRESS
+	Router.put(
+		'/edit',
+		authJwt,
+		validateAddress,
+		rejectMiddleware,
+		putEditAddress
+	);
 
 	return app.use('/api/account/address', Router);
 };
