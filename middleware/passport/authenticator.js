@@ -6,8 +6,6 @@ Account = require('../../models/account.model');
 var opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = 'secret';
-// opts.issuer = 'accounts.examplesoft.com';
-// opts.audience = 'yoursite.net';
 passport.use(
 	new JwtStrategy(opts, async function (jwt_payload, done) {
 		try {

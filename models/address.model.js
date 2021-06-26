@@ -15,7 +15,7 @@ const addressSchema = new Schema(
 		country: String,
 		postal: String,
 		phone: String,
-		default: Boolean,
+		isDefault: Boolean,
 	},
 	{
 		versionKey: false,

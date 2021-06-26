@@ -53,8 +53,4 @@ module.exports = {
 			});
 		}
 	},
-
-	createNewAddress: async (req, res) => {
-		res.send('ok');
-	},
 };

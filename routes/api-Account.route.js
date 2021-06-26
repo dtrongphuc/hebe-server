@@ -7,6 +7,7 @@ const {
 } = require('../validate/account/account.validate');
 const { validateAddress } = require('../validate/account/address.validate');
 const authJwt = require('../middleware/passport/authenticator');
+const rejectMiddleware = require('../middleware/rejectErrors.middleware');
 var Router = express.Router();
 
 let initAccountAPI = (app) => {
@@ -14,7 +15,7 @@ let initAccountAPI = (app) => {
 	Router.post(
 		'/create',
 		validateRegister,
-		accountMiddleware.rejectErrors,
+		rejectMiddleware,
 		accountMiddleware.hashPassword,
 		accountController.createAccount
 	);
@@ -23,7 +24,7 @@ let initAccountAPI = (app) => {
 	Router.post(
 		'/login',
 		validateLogin,
-		accountMiddleware.rejectErrors,
+		rejectMiddleware,
 		accountController.login
 	);
 
@@ -33,14 +34,6 @@ let initAccountAPI = (app) => {
 			content: 'this is private route',
 		});
 	});
-
-	//POST NEW ADDRESS
-	Router.post(
-		'/address',
-		validateAddress,
-		accountMiddleware.rejectErrors,
-		accountController.createNewAddress
-	);
 
 	return app.use('/api/account', Router);
 };
