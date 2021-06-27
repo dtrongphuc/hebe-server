@@ -9,6 +9,7 @@ const {
 	putEditAddress,
 	deleteAddressById,
 	countAddresses,
+	getDefaultAddress,
 } = require('../controllers/address.controller');
 var Router = express.Router();
 
@@ -41,6 +42,9 @@ let initAddressAPI = (app) => {
 
 	//COUNT ADDRESS OF ACCOUNT
 	Router.get('/count', authJwt, countAddresses);
+
+	//GET DEFAULT ADDRESS
+	Router.get('/default', authJwt, getDefaultAddress);
 
 	return app.use('/api/account/address', Router);
 };
