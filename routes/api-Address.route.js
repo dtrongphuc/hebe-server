@@ -7,6 +7,8 @@ const {
 	getAllAddresses,
 	getAddressById,
 	putEditAddress,
+	deleteAddressById,
+	countAddresses,
 } = require('../controllers/address.controller');
 var Router = express.Router();
 
@@ -25,7 +27,7 @@ let initAddressAPI = (app) => {
 	//GET ADDRESS BY ID
 	Router.get('/get', authJwt, getAddressById);
 
-	//POST NEW ADDRESS
+	//EDIT ADDRESS
 	Router.put(
 		'/edit',
 		authJwt,
@@ -33,6 +35,12 @@ let initAddressAPI = (app) => {
 		rejectMiddleware,
 		putEditAddress
 	);
+
+	//DELETE ADDRESS
+	Router.delete('/delete', authJwt, deleteAddressById);
+
+	//COUNT ADDRESS OF ACCOUNT
+	Router.get('/count', authJwt, countAddresses);
 
 	return app.use('/api/account/address', Router);
 };

@@ -165,4 +165,62 @@ module.exports = {
 			});
 		}
 	},
+
+	deleteAddressById: async (req, res) => {
+		try {
+			const { id } = req.body;
+			if (!id) {
+				return res.status(400).json({
+					success: false,
+					msg: 'required id',
+				});
+			}
+
+			const address = await Address.findById(id);
+			if (address.isDefault === true) {
+				let matched = await Address.find({
+					customer: req.user?._id,
+					isDefault: false,
+				})
+					.sort({ _id: '-1' })
+					.limit(1);
+				if (matched.length > 0) {
+					let newDefault = matched[0];
+					newDefault.isDefault = true;
+					await newDefault.save();
+				}
+			}
+
+			await Address.findOneAndDelete({ _id: id });
+
+			return res.status(200).json({
+				success: true,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(400).json({
+				success: false,
+				msg: error,
+			});
+		}
+	},
+
+	countAddresses: async (req, res) => {
+		try {
+			let count = await Address.countDocuments({
+				customer: req.user?._id,
+			});
+
+			return res.status(200).json({
+				success: true,
+				count,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(400).json({
+				success: false,
+				msg: error,
+			});
+		}
+	},
 };
