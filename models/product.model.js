@@ -23,22 +23,16 @@ const productSchema = new Schema(
 		description: String,
 		variants: [
 			{
-				color: String,
-				details: [
-					{
-						size: String,
-						quantity: Number,
-					},
-				],
+				type: Schema.Types.ObjectId,
+				ref: 'Variant',
 			},
 		],
 		images: [
 			{
-				publicId: String,
-				link: String,
+				type: Schema.Types.ObjectId,
+				ref: 'ProductImage',
 			},
 		],
-		avatarIndex: Number,
 		quantity: Number,
 		showing: {
 			type: Boolean,
