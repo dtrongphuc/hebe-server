@@ -5,7 +5,18 @@ const variantSchema = new Schema(
 	{
 		color: String,
 		quantityOfColor: Number,
-		details: [{ size: String, quantity: Number }],
+		freeSize: Boolean,
+		details: [
+			{
+				_id: {
+					type: String,
+					index: true,
+					unique: true,
+				},
+				size: String,
+				quantity: Number,
+			},
+		],
 		product: {
 			ref: 'Product',
 			type: Schema.Types.ObjectId,

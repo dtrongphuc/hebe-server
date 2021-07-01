@@ -1,5 +1,6 @@
 const Product = require('../models/product.model');
-
+const ProductImages = require('../models/productImages.model');
+const Variant = require('../models/variant.model');
 const cloudinary = require('../models/cloudinary.model');
 
 module.exports = {
@@ -20,9 +21,13 @@ module.exports = {
 
 	getFrontPageProducts: async (req, res) => {
 		try {
-			let products = await Product.find({}).limit(10);
+			let products = await Product.find({})
+				.populate('images')
+				.populate('variants')
+				.limit(10);
 			return res.status(200).json(products);
 		} catch (error) {
+			console.log(error);
 			return res.status(500).json({
 				success: false,
 			});
@@ -89,7 +94,10 @@ module.exports = {
 
 			const productMatched = await Product.findOne({
 				path: path,
-			}).populate('brand');
+			})
+				.populate('brand')
+				.populate('images')
+				.populate('variants');
 
 			return res.status(200).json(productMatched);
 		} catch (error) {
@@ -157,4 +165,21 @@ module.exports = {
 			});
 		}
 	},
+};
+
+const maxQuantityOfVariantProduct = async (productId, variantId, size) => {
+	try {
+		let quantity = 0;
+
+		const variant = await Variant.findOne({
+			_id: variantId,
+			product: productId,
+		});
+
+		// If product is free size
+		if (variant?.freeSize) {
+			quantity = variant.quantityOfColor;
+		} else {
+		}
+	} catch (err) {}
 };
