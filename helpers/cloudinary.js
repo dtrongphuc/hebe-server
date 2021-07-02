@@ -46,7 +46,7 @@ module.exports = {
 		return uploadSingleFile(file, 'groups');
 	},
 
-	generateSignature: async (folder) => {
+	generateUploadSignature: async (folder) => {
 		const timestamp = new Date().getTime();
 		const signature = await cloudinary.utils.api_sign_request(
 			{ timestamp, folder },
@@ -57,6 +57,19 @@ module.exports = {
 			timestamp,
 			signature,
 			folder,
+		};
+	},
+
+	generateDestroySignature: async (public_id) => {
+		const timestamp = new Date().getTime();
+		const signature = await cloudinary.utils.api_sign_request(
+			{ timestamp, public_id },
+			'c8oY9Abr4umqqMP75glZvn87XS0'
+		);
+
+		return {
+			timestamp,
+			signature,
 		};
 	},
 };
