@@ -4,15 +4,8 @@ const isEmpty = (value) => {
 
 module.exports = {
 	validation: (req, res, next) => {
-		const {
-			name,
-			brand,
-			group,
-			price,
-			description,
-			variants, // is array {color, {size, quantity}}
-			avatarIndex,
-		} = req.body;
+		const { name, brand, group, price, description, variants, images } =
+			req.body;
 
 		if (
 			isEmpty(name) ||
@@ -39,10 +32,10 @@ module.exports = {
 				brand,
 				group,
 				price,
-				saleprice,
+				salePrice,
 				description,
-				variants, // is array {color, {size, quantity}}
-				avatarIndex,
+				variants,
+				images,
 			} = req.body;
 
 			let path = JSON.parse(name).toLowerCase().replace(/\W+/g, '-');

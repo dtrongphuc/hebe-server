@@ -16,7 +16,7 @@ const productSchema = new Schema(
 			required: false,
 		},
 		price: Number,
-		saleprice: {
+		salePrice: {
 			type: Number,
 			default: 0,
 		},
@@ -33,7 +33,6 @@ const productSchema = new Schema(
 				ref: 'ProductImage',
 			},
 		],
-		quantity: Number,
 		showing: {
 			type: Boolean,
 			default: true,

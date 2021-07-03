@@ -2,6 +2,7 @@ const Product = require('../models/product.model');
 const ProductImages = require('../models/productImages.model');
 const Variant = require('../models/variant.model');
 const cloudinary = require('../models/cloudinary.model');
+const { nameToPath } = require('../utils/utils');
 
 module.exports = {
 	getAll: async (req, res) => {
@@ -34,7 +35,6 @@ module.exports = {
 		}
 	},
 
-	// Image handle by multer, call req.files
 	postProduct: async (req, res) => {
 		try {
 			const {
@@ -42,33 +42,60 @@ module.exports = {
 				brand,
 				group,
 				price,
-				saleprice,
+				salePrice,
 				description,
-				variants, // is array {color, {size, quantity}}
-				avatarIndex,
-				imagesPath,
-				quantity,
-				path,
+				variants,
+				images,
 			} = req.body;
+			const path = nameToPath(name);
 
-			const imagesUrl = await cloudinary.uploadProductImages(imagesPath);
-
-			await Product.create({
+			let product = await Product.create({
 				name,
 				brand,
 				group,
 				price,
-				saleprice,
+				salePrice,
 				description,
-				variants,
-				images: imagesUrl.map((image) => ({
-					link: image.url,
-					publicId: image.publicId,
-				})),
-				quantity,
-				avatarIndex,
 				path,
 			});
+
+			let productImagesPromise = Promise.all(
+				images.map((image, index) => {
+					const { public_id, url } = image;
+					return ProductImages.create({
+						publicId: public_id,
+						src: url,
+						position: index + 1,
+						product: product._id,
+					});
+				})
+			);
+
+			let productVariantsPromise = Promise.all(
+				variants.map((variant) => {
+					const { color, freeSize, stock, details } = variant;
+
+					return Variant.create({
+						color,
+						freeSize,
+						stock,
+						details: details.map((detail) => ({
+							...detail,
+							sku: `${color.toUpperCase()}${product._id}${detail.quantity}`,
+						})),
+						product: product._id,
+					});
+				})
+			);
+
+			let [productImages, productVariants] = await Promise.all([
+				productImagesPromise,
+				productVariantsPromise,
+			]);
+
+			product.variants = productVariants.map((variant) => variant._id);
+			product.images = productImages.map((image) => image._id);
+			product.save();
 
 			return res.status(200).json({
 				success: true,

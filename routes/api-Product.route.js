@@ -1,10 +1,10 @@
 const express = require('express');
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 let Router = express.Router();
 
 const productController = require('../controllers/product.controller');
 const prMiddleware = require('../middleware/products/product.middleware.js');
+const rejectErrorsMiddleware = require('../middleware/rejectErrors.middleware');
+const { validateProduct } = require('../validate/product/product.validate');
 
 let initProductAPI = (app) => {
 	Router.get('/front-page', productController.getFrontPageProducts);
@@ -14,8 +14,8 @@ let initProductAPI = (app) => {
 	Router.get('/edit/id/:productId', productController.getEditProduct);
 	Router.post(
 		'/create',
-		upload.array('images'),
-		[prMiddleware.validation, prMiddleware.parseData],
+		validateProduct,
+		rejectErrorsMiddleware,
 		productController.postProduct
 	);
 	return app.use('/api/product', Router);

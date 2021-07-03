@@ -4,15 +4,11 @@ const Schema = mongoose.Schema;
 const variantSchema = new Schema(
 	{
 		color: String,
-		quantityOfColor: Number,
+		stock: Number,
 		freeSize: Boolean,
 		details: [
 			{
-				_id: {
-					type: String,
-					index: true,
-					unique: true,
-				},
+				sku: String,
 				size: String,
 				quantity: Number,
 			},
