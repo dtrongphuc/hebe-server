@@ -17,8 +17,13 @@ const cartSchema = new Schema(
 					type: Schema.Types.ObjectId,
 					ref: 'Variant',
 				},
+				sku: String,
 				quantity: Number,
 				total: Number,
+				createdAt: {
+					type: Date,
+					default: Date.now,
+				},
 			},
 		],
 		totalPrice: Number,

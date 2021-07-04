@@ -2,7 +2,6 @@ const express = require('express');
 let Router = express.Router();
 
 const productController = require('../controllers/product.controller');
-const prMiddleware = require('../middleware/products/product.middleware.js');
 const rejectErrorsMiddleware = require('../middleware/rejectErrors.middleware');
 const { validateProduct } = require('../validate/product/product.validate');
 

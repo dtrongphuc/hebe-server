@@ -1,7 +1,6 @@
 const Product = require('../models/product.model');
 const ProductImages = require('../models/productImages.model');
 const Variant = require('../models/variant.model');
-const cloudinary = require('../models/cloudinary.model');
 const { nameToPath } = require('../utils/utils');
 
 module.exports = {
@@ -81,7 +80,7 @@ module.exports = {
 						stock,
 						details: details.map((detail) => ({
 							...detail,
-							sku: `${color.toUpperCase()}${product._id}${detail.quantity}`,
+							sku: `${color.toUpperCase()}${product._id}${detail.size}`,
 						})),
 						product: product._id,
 					});

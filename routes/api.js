@@ -9,6 +9,7 @@ const initReviewAPI = require('./api-Review.route');
 const initCollectionAPI = require('./api-Collection.route');
 const initAddressAPI = require('./api-Address.route');
 const initCloudinaryAPI = require('./api-Cloudinary.route');
+const initCartAPI = require('./api-Cart.route');
 
 const APIRoutes = (app) => {
 	initAccountAPI(app);
@@ -19,6 +20,7 @@ const APIRoutes = (app) => {
 	initCollectionAPI(app);
 	initAddressAPI(app);
 	initCloudinaryAPI(app);
+	initCartAPI(app);
 };
 
 module.exports = APIRoutes;
