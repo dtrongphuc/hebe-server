@@ -8,9 +8,8 @@ const variantSchema = new Schema(
 		freeSize: Boolean,
 		details: [
 			{
-				sku: String,
-				size: String,
-				quantity: Number,
+				ref: 'VariantDetail',
+				type: Schema.Types.ObjectId,
 			},
 		],
 		product: {

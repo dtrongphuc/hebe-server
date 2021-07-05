@@ -1,6 +1,7 @@
 const Product = require('../models/product.model');
 const ProductImages = require('../models/productImages.model');
 const Variant = require('../models/variant.model');
+const VariantDetail = require('../models/variant_detail.model');
 const { nameToPath } = require('../utils/utils');
 
 module.exports = {
@@ -71,17 +72,22 @@ module.exports = {
 			);
 
 			let productVariantsPromise = Promise.all(
-				variants.map((variant) => {
+				variants.map(async (variant) => {
 					const { color, freeSize, stock, details } = variant;
 
+					let variantDetails = await Promise.all(
+						details.map((detail) => {
+							return VariantDetail.create({
+								size: detail.size,
+								quantity: detail.quantity,
+							});
+						})
+					);
 					return Variant.create({
 						color,
 						freeSize,
 						stock,
-						details: details.map((detail) => ({
-							...detail,
-							sku: `${color.toUpperCase()}${product._id}${detail.size}`,
-						})),
+						details: variantDetails.map((detail) => detail._id),
 						product: product._id,
 					});
 				})
@@ -123,7 +129,12 @@ module.exports = {
 			})
 				.populate('brand')
 				.populate('images')
-				.populate('variants');
+				.populate({
+					path: 'variants',
+					populate: {
+						path: 'details',
+					},
+				});
 
 			return res.status(200).json(productMatched);
 		} catch (error) {
@@ -191,21 +202,4 @@ module.exports = {
 			});
 		}
 	},
-};
-
-const maxQuantityOfVariantProduct = async (productId, variantId, size) => {
-	try {
-		let quantity = 0;
-
-		const variant = await Variant.findOne({
-			_id: variantId,
-			product: productId,
-		});
-
-		// If product is free size
-		if (variant?.freeSize) {
-			quantity = variant.quantityOfColor;
-		} else {
-		}
-	} catch (err) {}
 };
