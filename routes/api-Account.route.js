@@ -29,9 +29,9 @@ let initAccountAPI = (app) => {
 	);
 
 	// GET INFO
-	Router.get('/info', authJwt, (req, res) => {
-		res.json({
-			content: 'this is private route',
+	Router.get('/auth', authJwt, (req, res) => {
+		return res.status(200).json({
+			loggedIn: true,
 		});
 	});
 

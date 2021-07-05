@@ -4,7 +4,7 @@ var JwtStrategy = require('passport-jwt').Strategy,
 Account = require('../../models/account.model');
 
 var opts = {};
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.jwtFromRequest = ExtractJwt.fromExtractors([(req) => req.cookies?.token]);
 opts.secretOrKey = 'secret';
 passport.use(
 	new JwtStrategy(opts, async function (jwt_payload, done) {

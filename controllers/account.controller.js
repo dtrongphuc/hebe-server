@@ -18,10 +18,14 @@ module.exports = {
 				role: account.role,
 			});
 
+			res.cookie('token', token, {
+				httpOnly: true,
+				maxAge: 24 * 60 * 60 * 1000, // 24 hours
+			});
+
 			return res.status(200).json({
 				success: true,
 				msg: 'Tạo tài khoản thành công',
-				token,
 			});
 		} catch (error) {
 			return res.status(500).json({
@@ -40,10 +44,14 @@ module.exports = {
 				role: account.role,
 			});
 
+			res.cookie('token', token, {
+				httpOnly: true,
+				maxAge: 24 * 60 * 60 * 1000, // 24 hours
+			});
+
 			return res.status(200).json({
 				success: true,
 				msg: 'Đăng nhập thành công',
-				token,
 			});
 		} catch (error) {
 			console.log(error);
