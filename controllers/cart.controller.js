@@ -81,10 +81,20 @@ module.exports = {
 					{
 						path: 'product',
 						select: '-variants -group -description -__v -showing',
-						populate: {
-							path: 'brand',
-							select: '_id name path',
-						},
+						populate: [
+							{
+								path: 'brand',
+								select: '_id name path',
+							},
+							{
+								path: 'images',
+								match: {
+									position: {
+										$eq: 1,
+									},
+								},
+							},
+						],
 					},
 					{
 						path: 'sku',
@@ -95,11 +105,6 @@ module.exports = {
 					},
 				],
 			});
-
-			// if (cart) {
-			// 	let { details } = cart.products?.variant;
-			// 	details = details?.find((detail) => detail.sku === cart?.products?.sku);
-			// }
 
 			return res.status(200).json({
 				success: true,
@@ -112,4 +117,68 @@ module.exports = {
 			});
 		}
 	},
+
+	updateCart: async (req, res) => {
+		try {
+			// action_type = 1, update quantity
+			// action_type = 2, delete
+			const { action_type, info, update } = req.body,
+				{ cart_id, item_id } = info,
+				{ old_quantity, quantity } = update;
+			if (action_type === '1') {
+				const cart = await Cart.findById(cart_id).populate({
+					path: 'products',
+					match: {
+						_id: {
+							$eq: item_id,
+						},
+					},
+					populate: [
+						{
+							path: 'product',
+						},
+						{
+							path: 'variant',
+						},
+						{
+							path: 'sku',
+						},
+					],
+				});
+				if (!cart) {
+					throw new Error('cart_id invalid');
+				}
+
+				const cartItem = cart.products && cart.products[0];
+				let stock = cartItem?.sku?.quantity || cartItem?.variant?.stock;
+				if (quantity > 0 && quantity <= stock) {
+					cartItem.quantity = parseFloat(quantity);
+
+					cartItem.total = cartItem.quantity * cartItem.product.price;
+					await cart.save();
+				}
+			}
+			const changes = await updateCartPrice(cart_id);
+			return res.status(200).json({
+				success: true,
+				cart: changes,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(400).json({
+				success: false,
+			});
+		}
+	},
+};
+
+const updateCartPrice = async (cartId) => {
+	const cart = await Cart.findById(cartId);
+	let totalPrice = cart?.products?.reduce(
+		(total, current) => total + current.total,
+		0
+	);
+	cart.totalPrice = totalPrice;
+	const saved = await cart.save();
+	return saved;
 };

@@ -3,8 +3,15 @@ let Router = express.Router();
 
 const authJwt = require('../middleware/passport/authenticator');
 const rejectErrorsMiddleware = require('../middleware/rejectErrors.middleware');
-const { validateAddToCart } = require('../validate/cart/cart.validate');
-const { addToCart, fetchCart } = require('../controllers/cart.controller');
+const {
+	validateAddToCart,
+	validateUpdateCart,
+} = require('../validate/cart/cart.validate');
+const {
+	addToCart,
+	fetchCart,
+	updateCart,
+} = require('../controllers/cart.controller');
 
 let initCartAPI = (app) => {
 	Router.post(
@@ -15,6 +22,13 @@ let initCartAPI = (app) => {
 		addToCart
 	);
 	Router.get('/', authJwt, fetchCart);
+	Router.post(
+		'/update',
+		authJwt,
+		validateUpdateCart,
+		rejectErrorsMiddleware,
+		updateCart
+	);
 
 	return app.use('/api/cart', Router);
 };

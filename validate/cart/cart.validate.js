@@ -19,3 +19,9 @@ exports.validateAddToCart = [
 			}
 		}),
 ];
+
+exports.validateUpdateCart = [
+	check('action_type').notEmpty(),
+	check('info').notEmpty(),
+	check('update').notEmpty(),
+];
