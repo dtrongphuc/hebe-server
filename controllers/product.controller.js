@@ -72,22 +72,28 @@ module.exports = {
 			);
 
 			let productVariantsPromise = Promise.all(
-				variants.map(async (variant) => {
+				variants?.map(async (variant) => {
 					const { color, freeSize, stock, details } = variant;
 
-					let variantDetails = await Promise.all(
-						details.map((detail) => {
-							return VariantDetail.create({
-								size: detail.size,
-								quantity: detail.quantity,
-							});
-						})
-					);
+					let variantDetails =
+						Array.isArray(details) && details.length > 0 && !freeSize
+							? await Promise.all(
+									details?.map((detail) => {
+										return VariantDetail.create({
+											size: detail.size,
+											quantity: detail.quantity,
+										});
+									})
+							  )
+							: [];
+
 					return Variant.create({
 						color,
 						freeSize,
 						stock,
-						details: variantDetails.map((detail) => detail._id),
+						details: !freeSize
+							? variantDetails?.map((detail) => detail._id)
+							: null,
 						product: product._id,
 					});
 				})

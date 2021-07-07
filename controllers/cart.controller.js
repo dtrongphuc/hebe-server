@@ -19,23 +19,26 @@ module.exports = {
 					? variant.product.salePrice
 					: variant.product.price;
 			let total = price * quantity;
-			console.log(variantDetail);
 			let addProduct = {
 				product: variant.product._id,
 				variant: variant._id,
-				sku: variantDetail._id,
+				sku: variantDetail?._id || null,
 				quantity,
 				total,
 			};
 
 			if (cart) {
 				let { products } = cart;
-				let hadProduct = products.find((item) => {
-					return (
-						String(item.product._id) === String(variant.product._id) &&
-						String(item.sku._id) === String(variantDetail._id)
-					);
-				});
+				let hadProduct = !!variantDetail
+					? products.find((item) => {
+							return (
+								String(item.product._id) === String(variant.product._id) &&
+								String(item.sku._id) === String(variantDetail._id)
+							);
+					  })
+					: products.find((item) => {
+							return String(item.product._id) === String(variant.product._id);
+					  });
 
 				if (hadProduct) {
 					hadProduct.quantity += quantity;
@@ -43,9 +46,8 @@ module.exports = {
 				} else {
 					products.push(addProduct);
 				}
-				cart.totalPrice += total;
-
 				await cart.save();
+				await updateCartPrice(cart._id);
 			} else {
 				await Cart.create({
 					account: req.user._id,
@@ -72,39 +74,7 @@ module.exports = {
 
 	fetchCart: async (req, res) => {
 		try {
-			const cart = await Cart.findOne({
-				account: req.user._id,
-			}).populate({
-				path: 'products',
-				select: '-account',
-				populate: [
-					{
-						path: 'product',
-						select: '-variants -group -description -__v -showing',
-						populate: [
-							{
-								path: 'brand',
-								select: '_id name path',
-							},
-							{
-								path: 'images',
-								match: {
-									position: {
-										$eq: 1,
-									},
-								},
-							},
-						],
-					},
-					{
-						path: 'sku',
-					},
-					{
-						path: 'variant',
-						select: '_id color stock freeSize',
-					},
-				],
-			});
+			const cart = await getCart(req.user._id);
 
 			return res.status(200).json({
 				success: true,
@@ -125,51 +95,88 @@ module.exports = {
 			const { action_type, info, update } = req.body,
 				{ cart_id, item_id } = info,
 				{ old_quantity, quantity } = update;
-			if (action_type === '1') {
-				const cart = await Cart.findById(cart_id).populate({
-					path: 'products',
-					match: {
-						_id: {
-							$eq: item_id,
+
+			let updateResult = null;
+
+			if (action_type === '1' || action_type === 1) {
+				updateResult = await updateQuantity(cart_id, item_id, quantity);
+			} else if (action_type === '2' || action_type === 2) {
+				let found = await Cart.findByIdAndUpdate(cart_id, {
+					$pull: {
+						products: {
+							_id: [item_id],
 						},
 					},
-					populate: [
-						{
-							path: 'product',
-						},
-						{
-							path: 'variant',
-						},
-						{
-							path: 'sku',
-						},
-					],
 				});
-				if (!cart) {
-					throw new Error('cart_id invalid');
-				}
 
-				const cartItem = cart.products && cart.products[0];
-				let stock = cartItem?.sku?.quantity || cartItem?.variant?.stock;
-				if (quantity > 0 && quantity <= stock) {
-					cartItem.quantity = parseFloat(quantity);
-
-					cartItem.total = cartItem.quantity * cartItem.product.price;
-					await cart.save();
-				}
+				updateResult = {
+					updated: !!found,
+					msg: !!found ? '' : 'item not found',
+				};
 			}
-			const changes = await updateCartPrice(cart_id);
+
+			if (!updateResult?.updated) {
+				return res.status(200).json({
+					success: true,
+					...updateResult,
+				});
+			}
+
+			await updateCartPrice(cart_id);
+
+			const updatedCart = await getCart(req.user._id);
 			return res.status(200).json({
 				success: true,
-				cart: changes,
+				cart: updatedCart,
+				...updateResult,
 			});
 		} catch (error) {
 			console.log(error);
 			return res.status(400).json({
 				success: false,
+				updated: false,
+				msg: 'An error occurred',
 			});
 		}
 	},
+};
+
+const getCart = async (userId) => {
+	const cart = await Cart.findOne({
+		account: userId,
+	}).populate({
+		path: 'products',
+		select: '-account',
+		populate: [
+			{
+				path: 'product',
+				select: '-variants -group -description -__v -showing',
+				populate: [
+					{
+						path: 'brand',
+						select: '_id name path',
+					},
+					{
+						path: 'images',
+						match: {
+							position: {
+								$eq: 1,
+							},
+						},
+					},
+				],
+			},
+			{
+				path: 'sku',
+			},
+			{
+				path: 'variant',
+				select: '_id color stock freeSize',
+			},
+		],
+	});
+
+	return cart;
 };
 
 const updateCartPrice = async (cartId) => {
@@ -179,6 +186,62 @@ const updateCartPrice = async (cartId) => {
 		0
 	);
 	cart.totalPrice = totalPrice;
-	const saved = await cart.save();
-	return saved;
+	await cart.save();
+};
+
+const updateQuantity = async (cart_id, item_id, quantity) => {
+	const cart = await Cart.findById(cart_id).populate({
+		path: 'products',
+		populate: [
+			{
+				path: 'product',
+			},
+			{
+				path: 'variant',
+			},
+			{
+				path: 'sku',
+			},
+		],
+	});
+
+	if (!cart) {
+		throw new Error('cart_id invalid');
+	}
+
+	let cartItem = cart.products.find((item) => String(item._id) === item_id);
+	let price =
+		cartItem.product?.salePrice > 0
+			? cartItem.product.salePrice
+			: cartItem.product.price;
+
+	let stock = cartItem?.sku?.quantity || cartItem?.variant?.stock;
+	if (quantity > 0 && quantity <= stock) {
+		cartItem.quantity = parseFloat(quantity);
+
+		cartItem.total = cartItem.quantity * price;
+		await cart.save();
+
+		return {
+			updated: true,
+			msg: '',
+		};
+	}
+
+	if (quantity > stock) {
+		cartItem.quantity = parseFloat(stock);
+
+		cartItem.total = cartItem.quantity * price;
+		await cart.save();
+
+		return {
+			updated: true,
+			msg: `Maximum quantity: ${stock}`,
+		};
+	}
+
+	return {
+		updated: false,
+		msg: 'error',
+	};
 };

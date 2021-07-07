@@ -10,6 +10,7 @@ const variantSchema = new Schema(
 			{
 				ref: 'VariantDetail',
 				type: Schema.Types.ObjectId,
+				required: false,
 			},
 		],
 		product: {
