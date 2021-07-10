@@ -28,10 +28,12 @@ let initAccountAPI = (app) => {
 		accountController.login
 	);
 
-	// GET INFO
 	Router.get('/auth', authJwt, (req, res) => {
 		return res.status(200).json({
 			loggedIn: true,
+			firstName: req.user.firstname,
+			lastName: req.user.lastname,
+			email: req.user.email,
 		});
 	});
 
