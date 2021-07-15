@@ -26,6 +26,9 @@ module.exports = {
 			return res.status(200).json({
 				success: true,
 				msg: 'Tạo tài khoản thành công',
+				firstName: account.firstname,
+				lastName: account.lastname,
+				email: account.email,
 			});
 		} catch (error) {
 			return res.status(500).json({
@@ -52,6 +55,9 @@ module.exports = {
 			return res.status(200).json({
 				success: true,
 				msg: 'Đăng nhập thành công',
+				firstName: account.firstname,
+				lastName: account.lastname,
+				email: account.email,
 			});
 		} catch (error) {
 			console.log(error);
