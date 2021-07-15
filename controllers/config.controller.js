@@ -18,7 +18,7 @@ module.exports = {
 
 				return {
 					name: pickup_name,
-					displayPrice: pickup_price === 0 ? 'FREE' : `${displayPrice}`,
+					displayPrice: pickup_price === 0 ? 'Free' : `${displayPrice}`,
 					price: pickup_price,
 					instruction: pickup_instruction,
 					address: pickup_address,
@@ -35,7 +35,7 @@ module.exports = {
 				return {
 					name: shipping_name,
 					price: shipping_price,
-					displayPrice: shipping_price === 0 ? 'FREE' : `${displayPrice}`,
+					displayPrice: shipping_price === 0 ? 'Free' : `${displayPrice}`,
 				};
 			});
 
@@ -77,6 +77,23 @@ module.exports = {
 				info: config,
 			});
 		} catch (error) {
+			return res.status(400).json({
+				success: false,
+				msg: error,
+			});
+		}
+	},
+
+	getPickupLocations: async (req, res) => {
+		try {
+			const config = await Config.findOne({}).select('locations');
+
+			return res.status(200).json({
+				success: true,
+				locations: config?.locations,
+			});
+		} catch (error) {
+			console.log(error);
 			return res.status(400).json({
 				success: false,
 				msg: error,

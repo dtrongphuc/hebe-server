@@ -2,6 +2,7 @@ const express = require('express');
 const {
 	putShippingConfig,
 	getShippingConfig,
+	getPickupLocations,
 } = require('../controllers/config.controller');
 let Router = express.Router();
 
@@ -18,6 +19,7 @@ let initConfigAPI = (app) => {
 	);
 
 	Router.get('/shipping', getShippingConfig);
+	Router.get('/pickup-locations', getPickupLocations);
 
 	return app.use('/api/config', Router);
 };
