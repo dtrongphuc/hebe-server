@@ -100,4 +100,21 @@ module.exports = {
 			});
 		}
 	},
+
+	getShippingMethods: async (req, res) => {
+		try {
+			const config = await Config.findOne({}).select('shippingMethods');
+
+			return res.status(200).json({
+				success: true,
+				shippingMethods: config?.shippingMethods,
+			});
+		} catch (error) {
+			console.log(error);
+			return res.status(400).json({
+				success: false,
+				msg: error,
+			});
+		}
+	},
 };
