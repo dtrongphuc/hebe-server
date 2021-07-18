@@ -10,9 +10,9 @@ const productSchema = new Schema(
 			ref: 'Brand',
 			required: true,
 		},
-		group: {
+		category: {
 			type: Schema.Types.ObjectId,
-			ref: 'Group',
+			ref: 'Category',
 			required: false,
 		},
 		price: Number,
