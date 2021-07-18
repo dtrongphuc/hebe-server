@@ -4,6 +4,7 @@ const {
 	getPickupLocations,
 	putPickupLocations,
 } = require('../../services/pickupLocation');
+const { validatePickupLocations } = require('../validations/shipping');
 
 const route = Router();
 
@@ -19,7 +20,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.put('/', async (req, res, next) => {
+	route.put('/', validatePickupLocations, rejection, async (req, res, next) => {
 		try {
 			await putPickupLocations(req.body);
 			return res.status(200).json({ success: true });
