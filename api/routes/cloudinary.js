@@ -1,7 +1,8 @@
 const { Router } = require('express');
-const rejection = require('../validations/rejection');
-const { getReviews } = require('../../services/review');
-const { requestDestroySignature } = require('../../services/cloudianry');
+const {
+	requestDestroySignature,
+	requestSignature,
+} = require('../../services/cloudianry');
 
 const route = Router();
 
