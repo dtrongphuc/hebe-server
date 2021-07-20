@@ -29,6 +29,9 @@ module.exports = {
 				paymentMethod,
 				voucherPrice: 0,
 			});
+
+			// clear user cart
+			await Cart.findOneAndDelete({ account: user._id });
 		} catch (error) {
 			console.log(error);
 		}
