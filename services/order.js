@@ -1,21 +1,32 @@
 const Order = require('../models/order.model');
+const Cart = require('../models/cart.model');
 
 module.exports = {
 	createOrder: async (orderInput, user) => {
 		try {
+			const {
+				billInfo,
+				deliveryMethod,
+				shippingMethod,
+				pickupLocation,
+				paymentMethod,
+			} = orderInput;
+
+			// find products cart of user
+			const { products } = await Cart.findOne({ account: user._id }).select(
+				'-products.createdAt'
+			);
+
 			await Order.create({
 				account: user._id,
-				products: [
-					{
-						product: '60e2bf4c4d601803dc2743cb',
-						variant: '60e2bf4c4d601803dc2743cb',
-						sku: '60e2bf4c4d601803dc2743d0',
-						quantity: 2,
-					},
-				],
-				shippingInfo: 'kahsdkahsdao',
-				shippingMethod: '60f40ebb42c78d4ea0d20c48',
-				paymentMethod: 'credit-card',
+				products: [...products],
+				billInfo: {
+					...billInfo,
+				},
+				deliveryMethod,
+				shippingMethod,
+				pickupLocation,
+				paymentMethod,
 				voucherPrice: 0,
 			});
 		} catch (error) {
