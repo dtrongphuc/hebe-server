@@ -10,6 +10,7 @@ const review = require('./routes/review');
 const collection = require('./routes/collection');
 const pickupLocation = require('./routes/pickupLocation');
 const shippingMethod = require('./routes/shippingMethod');
+const order = require('./routes/order');
 
 module.exports = () => {
 	const app = Router();
@@ -25,6 +26,7 @@ module.exports = () => {
 	cloudinary(app);
 	pickupLocation(app);
 	shippingMethod(app);
+	order(app);
 
 	return app;
 };

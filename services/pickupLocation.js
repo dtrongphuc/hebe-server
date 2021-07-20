@@ -1,4 +1,4 @@
-const PickupLocation = require('../models/pickupLocation');
+const PickupLocation = require('../models/pickupLocation.model');
 
 module.exports = {
 	getPickupLocations: async () => {
