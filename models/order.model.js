@@ -56,6 +56,12 @@ const orderSchema = new Schema(
 		shippingPrice: Number,
 		voucherPrice: Number,
 		lastPrice: Number,
+		createdAt: {
+			type: Date,
+			default: function () {
+				return Date.now();
+			},
+		},
 	},
 	{ versionKey: false }
 );

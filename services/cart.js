@@ -25,17 +25,11 @@ module.exports = {
 				}).populate('product'),
 			]);
 
-			let price =
-				variant.product?.salePrice > 0
-					? variant.product.salePrice
-					: variant.product.price;
-			let total = price * quantity;
 			let addProduct = {
 				product: variant.product._id,
 				variant: variant._id,
 				sku: variantDetail?._id || null,
 				quantity,
-				total,
 			};
 
 			if (cart) {
@@ -53,12 +47,11 @@ module.exports = {
 
 				if (hadProduct) {
 					hadProduct.quantity += quantity;
-					hadProduct.total += total;
 				} else {
 					products.push(addProduct);
 				}
 				await cart.save();
-				await updateCartPrice(cart._id);
+				// await updateCartPrice(cart._id);
 			} else {
 				await Cart.create({
 					account: user?._id,
@@ -67,7 +60,6 @@ module.exports = {
 							...addProduct,
 						},
 					],
-					totalPrice: addProduct.total,
 				});
 			}
 		} catch (error) {
@@ -89,14 +81,17 @@ module.exports = {
 			if (action_type === '1' || action_type === 1) {
 				updateResult = await updateQuantity(cart_id, item_id, quantity);
 			} else if (action_type === '2' || action_type === 2) {
-				let found = await Cart.findByIdAndUpdate(cart_id, {
-					$pull: {
-						products: {
-							_id: [item_id],
+				let found = await Cart.findByIdAndUpdate(
+					cart_id,
+					{
+						$pull: {
+							products: {
+								_id: [item_id],
+							},
 						},
 					},
-				});
-
+					{ new: true }
+				);
 				updateResult = {
 					updated: !!found,
 					msg: !!found ? '' : 'item not found',
@@ -104,13 +99,11 @@ module.exports = {
 			}
 
 			if (!updateResult?.updated) {
-				return res.status(200).json({
+				return Promise.reject({
 					success: true,
 					...updateResult,
 				});
 			}
-
-			await updateCartPrice(cart_id);
 
 			const updatedCart = await getCart(user?._id);
 
@@ -160,16 +153,6 @@ const getCart = async (userId) => {
 	return cart;
 };
 
-const updateCartPrice = async (cartId) => {
-	const cart = await Cart.findById(cartId);
-	let totalPrice = cart?.products?.reduce(
-		(total, current) => total + current.total,
-		0
-	);
-	cart.totalPrice = totalPrice;
-	await cart.save();
-};
-
 const updateQuantity = async (cart_id, item_id, quantity) => {
 	const cart = await Cart.findById(cart_id).populate({
 		path: 'products',
@@ -191,16 +174,11 @@ const updateQuantity = async (cart_id, item_id, quantity) => {
 	}
 
 	let cartItem = cart.products.find((item) => String(item._id) === item_id);
-	let price =
-		cartItem.product?.salePrice > 0
-			? cartItem.product.salePrice
-			: cartItem.product.price;
 
 	let stock = cartItem?.sku?.quantity || cartItem?.variant?.stock;
 	if (quantity > 0 && quantity <= stock) {
 		cartItem.quantity = parseFloat(quantity);
 
-		cartItem.total = cartItem.quantity * price;
 		await cart.save();
 
 		return {
@@ -212,7 +190,6 @@ const updateQuantity = async (cart_id, item_id, quantity) => {
 	if (quantity > stock) {
 		cartItem.quantity = parseFloat(stock);
 
-		cartItem.total = cartItem.quantity * price;
 		await cart.save();
 
 		return {

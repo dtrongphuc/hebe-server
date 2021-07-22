@@ -1,5 +1,9 @@
 const Order = require('../models/order.model');
 const Cart = require('../models/cart.model');
+const Variant = require('../models/variant.model');
+const VariantDetail = require('../models/variant_detail.model');
+
+const itemPerPage = 5;
 
 module.exports = {
 	createOrder: async (orderInput, user) => {
@@ -30,10 +34,99 @@ module.exports = {
 				voucherPrice: 0,
 			});
 
+			// map products variant
+			let mapped = await Promise.all(
+				products.map(async (item) => {
+					let [variant, sku] = await Promise.all([
+						Variant.findById(item.variant),
+						VariantDetail.findById(item.sku),
+					]);
+
+					return { variant, sku, quantity: item.quantity };
+				})
+			);
+
+			// deduction stock quantity
+			await Promise.all(
+				mapped.map(async ({ variant, sku, quantity }) => {
+					if (!variant.freeSize) {
+						sku.quantity = sku.quantity - quantity;
+						await sku.save();
+					} else {
+						variant.stock = variant.stock - quantity;
+					}
+
+					return await variant.save();
+				})
+			);
+
 			// clear user cart
 			await Cart.findOneAndDelete({ account: user._id });
 		} catch (error) {
-			console.log(error);
+			return Promise.reject(error);
+		}
+	},
+
+	countOrder: async (user) => {
+		try {
+			const count = await Order.countDocuments({ account: user._id });
+			return { count };
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	getOrdersOfUser: async ({ page }, user) => {
+		try {
+			const orders = await Order.find({ account: user._id })
+				.limit(itemPerPage)
+				.skip((page - 1) * itemPerPage)
+				.populate([
+					{
+						path: 'products',
+						populate: [
+							{
+								path: 'product',
+								select: 'name path',
+								populate: [
+									{
+										path: 'images',
+										match: {
+											position: 1,
+										},
+									},
+								],
+							},
+							{
+								path: 'variant',
+							},
+							{
+								path: 'sku',
+							},
+						],
+					},
+					{
+						path: 'shippingMethod',
+					},
+					{
+						path: 'pickupLocation',
+					},
+				])
+				.select('-account');
+
+			return { orders };
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	countPagination: async (user) => {
+		try {
+			const count = await Order.countDocuments({ account: user._id });
+			const maxPage = Math.ceil(count / itemPerPage);
+			return { maxPage };
+		} catch (error) {
+			return Promise.reject(error);
 		}
 	},
 };

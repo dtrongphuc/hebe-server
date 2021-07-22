@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const VariantDetail = require('./variant_detail.model');
 const Schema = mongoose.Schema;
 
 const variantSchema = new Schema(
@@ -20,6 +21,18 @@ const variantSchema = new Schema(
 	},
 	{ versionKey: false }
 );
+
+variantSchema.pre('save', async function () {
+	if (!this.freeSize) {
+		const quantities = await Promise.all(
+			this.details.map(async (detail) => {
+				let vDetail = await VariantDetail.findById(detail);
+				return vDetail.quantity;
+			})
+		);
+		this.stock = quantities.reduce((total, current) => total + current, 0);
+	}
+});
 
 let Variant = mongoose.model('Variant', variantSchema, 'variants');
 
