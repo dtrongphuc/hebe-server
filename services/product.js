@@ -122,7 +122,7 @@ module.exports = {
 
 					return Variant.create({
 						color,
-						freeSize,
+						freeSize: freeSize,
 						stock,
 						details: !freeSize
 							? variantDetails?.map((detail) => detail._id)

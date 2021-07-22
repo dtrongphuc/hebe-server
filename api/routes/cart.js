@@ -1,5 +1,10 @@
 const { Router } = require('express');
-const { addToCart, fetchCart, updateCart } = require('../../services/cart');
+const {
+	addToCart,
+	fetchCart,
+	updateCart,
+	checkProductQuantity,
+} = require('../../services/cart');
 const isAuth = require('../middlewares/isAuth');
 const {
 	validateAddToCart,
@@ -62,4 +67,13 @@ module.exports = (app) => {
 			}
 		}
 	);
+
+	route.get('/check', async (req, res, next) => {
+		try {
+			const { invalid } = await checkProductQuantity(req.user);
+			return res.status(200).json({ success: true, invalid });
+		} catch (error) {
+			next(error);
+		}
+	});
 };

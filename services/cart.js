@@ -113,6 +113,36 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
+
+	// check product quantity in cart less than product stock
+	checkProductQuantity: async (user) => {
+		try {
+			const cart = await Cart.findOne({ account: user._id }).populate({
+				path: 'products',
+				populate: [
+					{
+						path: 'variant',
+					},
+					{
+						path: 'sku',
+					},
+				],
+			});
+
+			let cartProductInvalid = cart.products?.filter((item) => {
+				let [variantStock, skuStock] = [item.variant.stock, item.sku?.quantity];
+				return item.variant.freeSize
+					? item.quantity > variantStock
+					: item.quantity > skuStock;
+			});
+
+			cartProductInvalid = cartProductInvalid.map((item) => item._id);
+
+			return { invalid: cartProductInvalid };
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
 };
 
 const getCart = async (userId) => {
