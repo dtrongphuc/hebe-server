@@ -25,6 +25,7 @@ module.exports = {
 			return {
 				timestamp,
 				signature,
+				public_id,
 			};
 		} catch (error) {
 			return Promise.reject(error);

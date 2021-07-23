@@ -3,6 +3,7 @@ const {
 	requestDestroySignature,
 	requestSignature,
 } = require('../../services/cloudianry');
+const { cloud } = require('../../config');
 
 const route = Router();
 
@@ -12,11 +13,10 @@ module.exports = (app) => {
 	route.post('/image/upload/signature', async (req, res, next) => {
 		try {
 			const { timestamp, signature, folder } = await requestSignature(req.body);
+
 			return res.status(200).json({
 				success: true,
-				timestamp,
-				signature,
-				folder,
+				url: `https://api.cloudinary.com/v1_1/${cloud.name}/image/upload?api_key=${cloud.api_key}&folder=${folder}&timestamp=${timestamp}&signature=${signature}`,
 			});
 		} catch (error) {
 			next(error);
@@ -25,11 +25,12 @@ module.exports = (app) => {
 
 	route.post('/image/destroy/signature', async (req, res, next) => {
 		try {
-			const { timestamp, signature } = await requestDestroySignature(req.body);
+			const { timestamp, signature, public_id } = await requestDestroySignature(
+				req.body
+			);
 			return res.status(200).json({
 				success: true,
-				timestamp,
-				signature,
+				url: `https://api.cloudinary.com/v1_1/${cloud.name}/image/destroy?api_key=${cloud.api_key}&public_id=${public_id}&timestamp=${timestamp}&signature=${signature}`,
 			});
 		} catch (error) {
 			next(error);

@@ -8,4 +8,8 @@ module.exports = {
 		origin: process.env.CLIENT_URI || 'http://localhost:3000',
 		credentials: true,
 	},
+	cloud: {
+		name: 'du1435df8',
+		api_key: '588658126729115',
+	},
 };

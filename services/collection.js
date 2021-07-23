@@ -3,7 +3,7 @@ const Category = require('../models/category.model');
 const Product = require('../models/product.model');
 
 module.exports = {
-	getCollections: async ({ path }) => {
+	getCollections: async ({ path }, { page = 1, limit = 21, offset = 0 }) => {
 		try {
 			const category = await Category.findOne({ path: path });
 			const brand = await Brand.findOne({ path: path });
@@ -17,7 +17,10 @@ module.exports = {
 						brand: brand?._id,
 					},
 				],
-			});
+			})
+				.populate('images')
+				.skip(page * offset)
+				.limit(limit);
 
 			return {
 				info: category || brand,

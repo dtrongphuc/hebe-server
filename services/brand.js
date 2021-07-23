@@ -30,4 +30,15 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
+	brandsLink: async () => {
+		try {
+			let brands = await Brand.find({ showing: true }).select('-_id name path');
+
+			return {
+				brands,
+			};
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
 };

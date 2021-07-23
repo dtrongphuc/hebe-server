@@ -1,5 +1,9 @@
 const { Router } = require('express');
-const { getAllBrands, getBrandCollections } = require('../../services/brand');
+const {
+	getAllBrands,
+	getBrandCollections,
+	brandsLink,
+} = require('../../services/brand');
 
 const route = Router();
 
@@ -11,6 +15,15 @@ module.exports = (app) => {
 	route.get('/all', async (req, res, next) => {
 		try {
 			let { brands } = await getAllBrands();
+			return res.status(200).json({ success: true, brands });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.get('/link', async (req, res, next) => {
+		try {
+			const { brands } = await brandsLink();
 			return res.status(200).json({ success: true, brands });
 		} catch (error) {
 			next(error);
