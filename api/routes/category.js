@@ -1,9 +1,10 @@
 const { Router } = require('express');
 const {
 	getAllCategories,
-	getCategoryCollections,
 	categoriesLink,
 	addNewCategory,
+	getCategoryInfo,
+	postEdit,
 } = require('../../services/category');
 const { validateCategory } = require('../validations/category');
 const rejection = require('../validations/rejection');
@@ -12,12 +13,6 @@ const route = Router();
 
 module.exports = (app) => {
 	app.use('/category', route);
-
-	// route.post(
-	// 	'/create',
-	// 	upload.single('image'),
-	// 	groupController.createNewGroup
-	// );
 
 	route.get('/all', async (req, res, next) => {
 		try {
@@ -37,15 +32,6 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/:path', async (req, res, next) => {
-		try {
-			const { info, products } = await getCategoryCollections(req.params);
-			return res.status(200).json({ success: true, info, products });
-		} catch (error) {
-			next(error);
-		}
-	});
-
 	route.post('/add', validateCategory, rejection, async (req, res, next) => {
 		try {
 			const { newCategory } = await addNewCategory(req.body);
@@ -56,4 +42,27 @@ module.exports = (app) => {
 			next(error);
 		}
 	});
+
+	route.get('/info/:path', async (req, res, next) => {
+		try {
+			const { category } = await getCategoryInfo(req.params);
+			return res.status(200).json({ success: true, category });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.post(
+		'/edit/:path',
+		validateCategory,
+		rejection,
+		async (req, res, next) => {
+			try {
+				await postEdit(req.params, req.body);
+				return res.status(200).json({ success: true });
+			} catch (error) {
+				next(error);
+			}
+		}
+	);
 };

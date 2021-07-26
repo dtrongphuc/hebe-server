@@ -15,23 +15,6 @@ module.exports = {
 		}
 	},
 
-	getCategoryCollections: async ({ path }) => {
-		try {
-			const category = await Category.findOne({ path: path });
-
-			const products = await Product.find({
-				category: category._id,
-			});
-
-			return {
-				info: category,
-				products,
-			};
-		} catch (error) {
-			return Promise.reject(error);
-		}
-	},
-
 	categoriesLink: async () => {
 		try {
 			let categories = await Category.find({ showing: true }).select(
@@ -62,6 +45,35 @@ module.exports = {
 			});
 
 			return { newCategory };
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	getCategoryInfo: async ({ path }) => {
+		try {
+			const category = await Category.findOne({ path: path });
+
+			return {
+				category,
+			};
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	postEdit: async ({ path }, categoryInput) => {
+		try {
+			await Category.findOneAndUpdate(
+				{ path: path },
+				{
+					...categoryInput,
+				}
+			);
+
+			return {
+				success: true,
+			};
 		} catch (error) {
 			return Promise.reject(error);
 		}
