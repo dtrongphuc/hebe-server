@@ -3,7 +3,12 @@ const {
 	getAllBrands,
 	getBrandCollections,
 	brandsLink,
+	addNewBrand,
+	getBrandInfo,
+	postEdit,
 } = require('../../services/brand');
+const { validateBrand } = require('../validations/brand');
+const rejection = require('../validations/rejection');
 
 const route = Router();
 
@@ -30,6 +35,16 @@ module.exports = (app) => {
 		}
 	});
 
+	route.get('/info/:path', async (req, res, next) => {
+		try {
+			const { brand } = await getBrandInfo(req.params);
+			return res.status(200).json({ success: true, brand });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	// page with product
 	route.get('/:path', async (req, res, next) => {
 		try {
 			const { info, products } = await getBrandCollections(req.params);
@@ -38,4 +53,30 @@ module.exports = (app) => {
 			next(error);
 		}
 	});
+
+	route.post('/add', validateBrand, rejection, async (req, res, next) => {
+		try {
+			const { newBrand } = await addNewBrand(req.body);
+			if (!newBrand) return res.status(500).json({ success: false });
+
+			return res.status(200).json({ success: true });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	//post edit
+	route.post(
+		'/edit/:path',
+		validateBrand,
+		rejection,
+		async (req, res, next) => {
+			try {
+				await postEdit(req.params, req.body);
+				return res.status(200).json({ success: true });
+			} catch (error) {
+				next(error);
+			}
+		}
+	);
 };

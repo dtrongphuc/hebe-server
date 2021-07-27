@@ -25,7 +25,7 @@ const variantSchema = new Schema(
 variantSchema.pre('save', async function () {
 	if (!this.freeSize) {
 		const quantities = await Promise.all(
-			this.details.map(async (detail) => {
+			this.details?.map(async (detail) => {
 				let vDetail = await VariantDetail.findById(detail);
 				return vDetail.quantity;
 			})

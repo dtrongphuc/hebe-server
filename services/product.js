@@ -20,7 +20,7 @@ module.exports = {
 
 	getAllProducts: async () => {
 		try {
-			const products = await Product.find({}).populate('brand');
+			const products = await Product.find({}).populate('brand category');
 			return { products };
 		} catch (error) {
 			return Promise.reject(error);
@@ -39,6 +39,7 @@ module.exports = {
 				path: path,
 			})
 				.populate('brand')
+				.populate('category')
 				.populate('images')
 				.populate({
 					path: 'variants',
@@ -92,49 +93,9 @@ module.exports = {
 				path,
 			});
 
-			let productImagesPromise = Promise.all(
-				images.map((image, index) => {
-					const { public_id, url } = image;
-					return ProductImages.create({
-						publicId: public_id,
-						src: url,
-						position: index + 1,
-						product: product._id,
-					});
-				})
-			);
-
-			let productVariantsPromise = Promise.all(
-				variants?.map(async (variant) => {
-					const { color, freeSize, stock, details } = variant;
-
-					let variantDetails =
-						Array.isArray(details) && details.length > 0 && !freeSize
-							? await Promise.all(
-									details?.map((detail) => {
-										return VariantDetail.create({
-											size: detail.size,
-											quantity: detail.quantity,
-										});
-									})
-							  )
-							: [];
-
-					return Variant.create({
-						color,
-						freeSize: freeSize,
-						stock,
-						details: !freeSize
-							? variantDetails?.map((detail) => detail._id)
-							: null,
-						product: product._id,
-					});
-				})
-			);
-
 			let [productImages, productVariants] = await Promise.all([
-				productImagesPromise,
-				productVariantsPromise,
+				mapImages(images, product._id),
+				mapVariants(variants, product._id),
 			]);
 
 			product.variants = productVariants.map((variant) => variant._id);
@@ -145,4 +106,97 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
+
+	postEdit: async ({ path }, productInput) => {
+		try {
+			const {
+				name,
+				category,
+				brand,
+				salePrice,
+				price,
+				description,
+				variants,
+				images,
+			} = productInput;
+
+			let product = await Product.findOneAndUpdate(
+				{ path: path },
+				{
+					name,
+					category,
+					brand,
+					salePrice,
+					price,
+					description,
+				},
+				{ new: true }
+			).populate('variants');
+
+			let [productImages, productVariants] = await Promise.all([
+				mapImages(images, product._id),
+				mapVariants(variants, product._id),
+				Variant.deleteMany({ product: product._id }),
+				VariantDetail.deleteMany({
+					_id: {
+						$in: product.variants?.map((variant) => variant.details).flat(),
+					},
+				}),
+				ProductImages.deleteMany({ product: product._id }),
+			]);
+
+			product.variants = productVariants.map((variant) => variant._id);
+			product.images = productImages.map((image) => image._id);
+			product.save();
+
+			return {
+				success: true,
+			};
+		} catch (error) {
+			console.log(error);
+			return Promise.reject(error);
+		}
+	},
+};
+
+const mapImages = (images, productId) => {
+	return Promise.all(
+		images.map((image, index) => {
+			const { public_id, url } = image;
+			return ProductImages.create({
+				publicId: public_id,
+				src: url,
+				position: index + 1,
+				product: productId,
+			});
+		})
+	);
+};
+
+const mapVariants = (variants, productId) => {
+	return Promise.all(
+		variants?.map(async (variant) => {
+			const { color, freeSize, stock, details } = variant;
+
+			let variantDetails =
+				Array.isArray(details) && details.length > 0 && !freeSize
+					? await Promise.all(
+							details?.map((detail) => {
+								return VariantDetail.create({
+									size: detail.size,
+									quantity: detail.quantity,
+								});
+							})
+					  )
+					: [];
+
+			return Variant.create({
+				color,
+				freeSize: freeSize,
+				stock,
+				details: !freeSize ? variantDetails?.map((detail) => detail._id) : null,
+				product: productId,
+			});
+		})
+	);
 };

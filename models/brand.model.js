@@ -7,7 +7,7 @@ const brandSchema = new Schema(
 		path: String,
 		image: {
 			publicId: String,
-			link: String,
+			src: String,
 		},
 		description: String,
 		showing: {

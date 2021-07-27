@@ -5,6 +5,7 @@ const {
 	findProductByPath,
 	findProductById,
 	createNewProduct,
+	postEdit,
 } = require('../../services/product');
 const rejection = require('../validations/rejection');
 const { validateProduct } = require('../validations/product');
@@ -75,4 +76,18 @@ module.exports = (app) => {
 			next(error);
 		}
 	});
+
+	route.post(
+		'/edit/:path',
+		validateProduct,
+		rejection,
+		async (req, res, next) => {
+			try {
+				await postEdit(req.params, req.body);
+				return res.status(200).json({ success: true });
+			} catch (error) {
+				next(error);
+			}
+		}
+	);
 };
