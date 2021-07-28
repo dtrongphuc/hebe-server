@@ -5,8 +5,10 @@ const Product = require('../models/product.model');
 module.exports = {
 	getCollections: async ({ path }, { page = 1, limit = 21, offset = 0 }) => {
 		try {
-			const category = await Category.findOne({ path: path });
-			const brand = await Brand.findOne({ path: path });
+			const [category, brand] = await Promise.all([
+				Category.findOne({ path: path }),
+				Brand.findOne({ path: path }),
+			]);
 
 			const products = await Product.find({
 				$or: [
@@ -15,6 +17,11 @@ module.exports = {
 					},
 					{
 						brand: brand?._id,
+					},
+					{
+						specialCategories: {
+							$in: [category?._id],
+						},
 					},
 				],
 			})

@@ -72,4 +72,10 @@ module.exports = {
 			signature,
 		};
 	},
+
+	destroyFiles: (public_id_arr) => {
+		return Promise.all(
+			public_id_arr.map((public_id) => cloudinary.uploader.destroy(public_id))
+		);
+	},
 };

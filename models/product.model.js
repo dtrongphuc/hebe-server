@@ -13,8 +13,15 @@ const productSchema = new Schema(
 		category: {
 			type: Schema.Types.ObjectId,
 			ref: 'Category',
-			required: false,
+			required: true,
 		},
+		specialCategories: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: 'Category',
+				required: false,
+			},
+		],
 		price: Number,
 		salePrice: {
 			type: Number,
@@ -38,7 +45,7 @@ const productSchema = new Schema(
 			default: true,
 		},
 	},
-	{ timestamps: { createdAt: 'created_at' } }
+	{ timestamps: { createdAt: 'created_at' }, versionKey: false }
 );
 
 let Product = mongoose.model('Product', productSchema, 'products');

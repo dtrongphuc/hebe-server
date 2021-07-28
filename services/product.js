@@ -2,8 +2,9 @@ const Product = require('../models/product.model');
 const ProductImages = require('../models/productImages.model');
 const Variant = require('../models/variant.model');
 const VariantDetail = require('../models/variant_detail.model');
-const Brand = require('../models/brand.model');
+const Category = require('../models/category.model');
 const { nameToPath } = require('../utils/utils');
+const { destroyFiles } = require('../helpers/cloudinary');
 
 module.exports = {
 	getFrontPageProducts: async () => {
@@ -83,10 +84,23 @@ module.exports = {
 			} = productInput;
 			const path = nameToPath(name);
 
+			let specialCategories = [];
+			if (salePrice > 0) {
+				const saleCategory = await Category.findOne({ path: 'sale' });
+				specialCategories.push(saleCategory?._id);
+			} else if (price < 50) {
+				const under_50 = await Category.findOne({ path: 'under-50' });
+				specialCategories.push(under_50?._id);
+			} else if (price < 100) {
+				const under_100 = await Category.findOne({ path: 'under-50' });
+				specialCategories.push(under_100?._id);
+			}
+
 			let product = await Product.create({
 				name,
 				brand,
 				category,
+				specialCategories,
 				price,
 				salePrice,
 				description,
@@ -133,9 +147,15 @@ module.exports = {
 				{ new: true }
 			).populate('variants');
 
+			let old_images = await ProductImages.find({ product: product._id });
+			let deletePublicIds = old_images
+				.filter((o) => !images.map((i) => i.public_id).includes(o.publicId))
+				?.map((image) => image.publicId);
+
 			let [productImages, productVariants] = await Promise.all([
 				mapImages(images, product._id),
 				mapVariants(variants, product._id),
+				destroyFiles(deletePublicIds),
 				Variant.deleteMany({ product: product._id }),
 				VariantDetail.deleteMany({
 					_id: {
