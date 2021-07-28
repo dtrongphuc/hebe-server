@@ -1,3 +1,4 @@
+const { destroyFiles } = require('../helpers/cloudinary');
 const Brand = require('../models/brand.model');
 const Product = require('../models/product.model');
 const { nameToPath } = require('../utils/utils');
@@ -78,6 +79,11 @@ module.exports = {
 
 	postEdit: async ({ path }, brandInput) => {
 		try {
+			const brand = await Brand.findOne({ path: path });
+			if (brand.image.publicId !== brandInput.image.publicId) {
+				await destroyFiles([brand.image.publicId]);
+			}
+
 			await Brand.findOneAndUpdate(
 				{ path: path },
 				{
