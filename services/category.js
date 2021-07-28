@@ -1,6 +1,6 @@
 const Category = require('../models/category.model');
-const Product = require('../models/product.model');
 const { nameToPath } = require('../utils/utils');
+const { destroyFiles } = require('../helpers/cloudinary');
 
 module.exports = {
 	getAllCategories: async () => {
@@ -64,6 +64,11 @@ module.exports = {
 
 	postEdit: async ({ path }, categoryInput) => {
 		try {
+			const category = await Category.findOne({ path: path });
+			if (category.image.publicId !== categoryInput.image.publicId) {
+				await destroyFiles([category.image.publicId]);
+			}
+
 			await Category.findOneAndUpdate(
 				{ path: path },
 				{
