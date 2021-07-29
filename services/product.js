@@ -177,7 +177,19 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
+
+	// toggle showing
+	toggleActive: async ({ id }) => {
+		try {
+			const product = await Product.findById(id);
+			product.showing = !product.showing;
+			await product.save();
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
 };
+// end exports
 
 const mapImages = (images, productId) => {
 	return Promise.all(

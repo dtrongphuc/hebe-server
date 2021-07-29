@@ -83,4 +83,15 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
+
+	// toggle showing
+	toggleActive: async ({ id }) => {
+		try {
+			const category = await Category.findById(id);
+			category.showing = !category.showing;
+			await category.save();
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
 };

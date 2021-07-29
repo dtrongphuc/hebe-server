@@ -6,6 +6,7 @@ const {
 	findProductById,
 	createNewProduct,
 	postEdit,
+	toggleActive,
 } = require('../../services/product');
 const rejection = require('../validations/rejection');
 const { validateProduct } = require('../validations/product');
@@ -47,6 +48,15 @@ module.exports = (app) => {
 				success: true,
 				product,
 			});
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.get('/toggle-active', async (req, res, next) => {
+		try {
+			await toggleActive(req.query);
+			return res.status(200).json({ success: true });
 		} catch (error) {
 			next(error);
 		}

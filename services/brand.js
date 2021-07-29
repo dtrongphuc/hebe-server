@@ -98,4 +98,15 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
+
+	// toggle showing
+	toggleActive: async ({ id }) => {
+		try {
+			const brand = await Brand.findById(id);
+			brand.showing = !brand.showing;
+			await brand.save();
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
 };

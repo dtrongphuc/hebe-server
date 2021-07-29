@@ -6,6 +6,7 @@ const {
 	addNewBrand,
 	getBrandInfo,
 	postEdit,
+	toggleActive,
 } = require('../../services/brand');
 const { validateBrand } = require('../validations/brand');
 const rejection = require('../validations/rejection');
@@ -30,6 +31,15 @@ module.exports = (app) => {
 		try {
 			const { brands } = await brandsLink();
 			return res.status(200).json({ success: true, brands });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.get('/toggle-active', async (req, res, next) => {
+		try {
+			await toggleActive(req.query);
+			return res.status(200).json({ success: true });
 		} catch (error) {
 			next(error);
 		}

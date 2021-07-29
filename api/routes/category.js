@@ -5,6 +5,7 @@ const {
 	addNewCategory,
 	getCategoryInfo,
 	postEdit,
+	toggleActive,
 } = require('../../services/category');
 const { validateCategory } = require('../validations/category');
 const rejection = require('../validations/rejection');
@@ -37,6 +38,15 @@ module.exports = (app) => {
 			const { newCategory } = await addNewCategory(req.body);
 			if (!newCategory) return res.status(500).json({ success: false });
 
+			return res.status(200).json({ success: true });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.get('/toggle-active', async (req, res, next) => {
+		try {
+			await toggleActive(req.query);
 			return res.status(200).json({ success: true });
 		} catch (error) {
 			next(error);
