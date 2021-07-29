@@ -13,6 +13,10 @@ const accountSchema = new Schema(
 			enum: ['user', 'admin'],
 			default: 'user',
 		},
+		active: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	{
 		versionKey: false,

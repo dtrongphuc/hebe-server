@@ -6,9 +6,17 @@ module.exports = {
 	getCollections: async ({ path }, { page = 1, limit = 21, offset = 0 }) => {
 		try {
 			const [category, brand] = await Promise.all([
-				Category.findOne({ path: path }),
-				Brand.findOne({ path: path }),
+				Category.findOne({ path: path, showing: true }),
+				Brand.findOne({ path: path, showing: true }),
 			]);
+
+			if (!category && !brand) {
+				return Promise.reject({
+					status: 404,
+					message: 'page not found',
+					success: false,
+				});
+			}
 
 			const products = await Product.find({
 				$or: [

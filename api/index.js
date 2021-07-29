@@ -11,6 +11,7 @@ const collection = require('./routes/collection');
 const pickupLocation = require('./routes/pickupLocation');
 const shippingMethod = require('./routes/shippingMethod');
 const order = require('./routes/order');
+const account = require('./routes/account');
 
 module.exports = () => {
 	const app = Router();
@@ -27,6 +28,7 @@ module.exports = () => {
 	pickupLocation(app);
 	shippingMethod(app);
 	order(app);
+	account(app);
 
 	return app;
 };

@@ -23,8 +23,8 @@ module.exports = (app) => {
 		return next(err);
 	});
 	app.use((err, req, res, next) => {
-		res.status(err.status || 500);
-		res.json({
+		console.log(err);
+		res.status(err.status || 500).send({
 			success: false,
 			errors: {
 				message: err.message,
