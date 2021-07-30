@@ -1,7 +1,12 @@
 const { Router } = require('express');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
-const { getUserAccounts } = require('../../services/account');
+const {
+	getUserAccounts,
+	getAccountById,
+	submitEditAccount,
+} = require('../../services/account');
+const { validateEditUserAccount } = require('../validations/account');
 
 const route = Router();
 
@@ -17,4 +22,29 @@ module.exports = (app) => {
 			next(error);
 		}
 	});
+
+	// get user account by id
+	route.get('/user', async (req, res, next) => {
+		try {
+			const { account } = await getAccountById(req.query);
+			return res.status(200).json({ success: true, account });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	// submit edit user account
+	route.post(
+		'/user/edit',
+		validateEditUserAccount,
+		rejection,
+		async (req, res, next) => {
+			try {
+				const result = await submitEditAccount(req.body);
+				return res.status(200).json({ success: result });
+			} catch (error) {
+				next(error);
+			}
+		}
+	);
 };

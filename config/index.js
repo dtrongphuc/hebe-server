@@ -12,4 +12,7 @@ module.exports = {
 		name: 'du1435df8',
 		api_key: '588658126729115',
 	},
+	password: {
+		salt: 10,
+	},
 };

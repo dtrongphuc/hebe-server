@@ -51,3 +51,20 @@ exports.validateRegister = [
 		}),
 	check('password').notEmpty().withMessage('Please enter your password'),
 ];
+
+exports.validateEditUserAccount = [
+	check('email')
+		.notEmpty()
+		.withMessage('Please enter your email')
+		.isEmail()
+		.withMessage('Invalid email format')
+		.custom((value, { req }) => {
+			return Account.findOne({ email: value }).then((user) => {
+				if (user && String(user._id) !== req.body.id) {
+					return Promise.reject('Email is already in use');
+				}
+			});
+		}),
+	check('first_name').notEmpty().withMessage('Please enter your first name'),
+	check('last_name').notEmpty().withMessage('Please enter your last name'),
+];

@@ -1,11 +1,12 @@
 const bcrypt = require('bcrypt');
 const jwtHelper = require('../helpers/jwt');
 const Account = require('../models/account.model');
+const config = require('../config');
 
 module.exports = {
 	SignUp: async (userInput) => {
 		try {
-			let salt = 10;
+			let salt = config.password.salt;
 
 			const { password } = userInput;
 
