@@ -4,6 +4,7 @@ const {
 	countOrder,
 	getOrdersOfUser,
 	countPagination,
+	getOrders,
 } = require('../../services/order');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
@@ -12,6 +13,16 @@ const route = Router();
 
 module.exports = (app) => {
 	app.use('/orders', isAuth, route);
+
+	// get orders
+	route.get('/', async (req, res, next) => {
+		try {
+			const { orders } = await getOrders();
+			return res.status(200).json({ success: true, orders });
+		} catch (error) {
+			next(error);
+		}
+	});
 
 	route.post('/create', async (req, res, next) => {
 		try {

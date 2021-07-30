@@ -30,7 +30,6 @@ module.exports = (app) => {
 	route.get('/all', async (req, res, next) => {
 		try {
 			const { products } = await getAllProducts();
-
 			return res.status(200).json({
 				success: true,
 				products,

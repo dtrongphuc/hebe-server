@@ -4,6 +4,7 @@ const Product = require('./product.model');
 const ShippingMethod = require('./shippingMethod.model');
 const PickupLocation = require('./pickupLocation.model');
 const autoIncrement = require('mongoose-auto-increment');
+const moment = require('moment-timezone');
 
 const orderSchema = new Schema(
 	{
@@ -41,7 +42,11 @@ const orderSchema = new Schema(
 			postal: String,
 			phone: String,
 		},
-		deliveryMethod: String,
+		deliveryMethod: {
+			type: String,
+			enum: ['shipment', 'pickup'],
+			default: 'shipment',
+		},
 		shippingMethod: {
 			type: Schema.Types.ObjectId,
 			ref: 'ShippingMethod',
@@ -65,16 +70,10 @@ const orderSchema = new Schema(
 		paymentStatus: {
 			type: String,
 			enum: ['pending', 'paid', 'refunded'],
-			default: 'pending',
-		},
-		createdAt: {
-			type: Date,
-			default: function () {
-				return Date.now();
-			},
+			default: 'paid',
 		},
 	},
-	{ versionKey: false }
+	{ versionKey: false, timestamps: true }
 );
 
 orderSchema.pre('save', async function () {
@@ -113,8 +112,6 @@ orderSchema.pre('save', async function () {
 	}
 });
 
-let Order = mongoose.model('Order', orderSchema, 'orders');
-
 autoIncrement.initialize(mongoose.connection);
 orderSchema.plugin(autoIncrement.plugin, {
 	model: 'Order',
@@ -122,5 +119,7 @@ orderSchema.plugin(autoIncrement.plugin, {
 	startAt: 1000,
 	incrementBy: 1,
 });
+
+let Order = mongoose.model('Order', orderSchema, 'orders');
 
 module.exports = Order;

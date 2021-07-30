@@ -21,6 +21,8 @@ module.exports = {
 				'-products.createdAt'
 			);
 
+			let paymentStatus = paymentMethod === 'credit-card' ? 'paid' : 'pending';
+
 			await Order.create({
 				account: user._id,
 				products: [...products],
@@ -31,6 +33,7 @@ module.exports = {
 				shippingMethod,
 				pickupLocation,
 				paymentMethod,
+				paymentStatus,
 				voucherPrice: 0,
 			});
 
@@ -125,6 +128,15 @@ module.exports = {
 			const count = await Order.countDocuments({ account: user._id });
 			const maxPage = Math.ceil(count / itemPerPage);
 			return { maxPage };
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	getOrders: async () => {
+		try {
+			const orders = await Order.find({});
+			return { orders };
 		} catch (error) {
 			return Promise.reject(error);
 		}
