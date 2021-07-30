@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const Product = require('./product.model');
 const ShippingMethod = require('./shippingMethod.model');
 const PickupLocation = require('./pickupLocation.model');
+const autoIncrement = require('mongoose-auto-increment');
 
 const orderSchema = new Schema(
 	{
@@ -56,6 +57,16 @@ const orderSchema = new Schema(
 		shippingPrice: Number,
 		voucherPrice: Number,
 		lastPrice: Number,
+		shipmentStatus: {
+			type: String,
+			enum: ['pending', 'delivering', 'delivered'],
+			default: 'pending',
+		},
+		paymentStatus: {
+			type: String,
+			enum: ['pending', 'paid', 'refunded'],
+			default: 'pending',
+		},
 		createdAt: {
 			type: Date,
 			default: function () {
@@ -103,4 +114,13 @@ orderSchema.pre('save', async function () {
 });
 
 let Order = mongoose.model('Order', orderSchema, 'orders');
+
+autoIncrement.initialize(mongoose.connection);
+orderSchema.plugin(autoIncrement.plugin, {
+	model: 'Order',
+	field: 'orderNumber',
+	startAt: 1000,
+	incrementBy: 1,
+});
+
 module.exports = Order;
