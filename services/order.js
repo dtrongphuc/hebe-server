@@ -20,7 +20,6 @@ module.exports = {
 			const { products } = await Cart.findOne({ account: user._id }).select(
 				'-products.createdAt'
 			);
-
 			let paymentStatus = paymentMethod === 'credit-card' ? 'paid' : 'pending';
 
 			await Order.create({
@@ -137,6 +136,51 @@ module.exports = {
 		try {
 			const orders = await Order.find({});
 			return { orders };
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	// get order by id
+	getOrderById: async ({ id }) => {
+		try {
+			const order = await Order.findById(id).populate([
+				{
+					path: 'account',
+					select: '-password -active',
+				},
+				{
+					path: 'products',
+					populate: [
+						{
+							path: 'product',
+							select: 'name path',
+							populate: [
+								{
+									path: 'images',
+									match: {
+										position: 1,
+									},
+								},
+							],
+						},
+						{
+							path: 'variant',
+						},
+						{
+							path: 'sku',
+						},
+					],
+				},
+				{
+					path: 'shippingMethod',
+				},
+				{
+					path: 'pickupLocation',
+				},
+			]);
+
+			return { order };
 		} catch (error) {
 			return Promise.reject(error);
 		}

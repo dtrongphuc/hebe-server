@@ -5,6 +5,7 @@ const {
 	getOrdersOfUser,
 	countPagination,
 	getOrders,
+	getOrderById,
 } = require('../../services/order');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
@@ -12,7 +13,7 @@ const isAuth = require('../middlewares/isAuth');
 const route = Router();
 
 module.exports = (app) => {
-	app.use('/orders', isAuth, route);
+	app.use('/orders', route);
 
 	// get orders
 	route.get('/', async (req, res, next) => {
@@ -33,7 +34,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/count', async (req, res, next) => {
+	route.get('/count', isAuth, async (req, res, next) => {
 		try {
 			const { count } = await countOrder(req.user);
 			return res.status(200).json({ success: true, count });
@@ -42,7 +43,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/by-user', async (req, res, next) => {
+	route.get('/by-user', isAuth, async (req, res, next) => {
 		try {
 			const { orders } = await getOrdersOfUser(req.query, req.user);
 			return res.status(200).json({ success: true, orders });
@@ -51,10 +52,20 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/max-page', async (req, res, next) => {
+	route.get('/max-page', isAuth, async (req, res, next) => {
 		try {
 			const { maxPage } = await countPagination(req.user);
 			return res.status(200).json({ success: true, maxPage });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	// get order by id
+	route.get('/by-id', async (req, res, next) => {
+		try {
+			const { order } = await getOrderById(req.query);
+			return res.status(200).json({ success: true, order });
 		} catch (error) {
 			next(error);
 		}
