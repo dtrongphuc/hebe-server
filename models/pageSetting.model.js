@@ -4,10 +4,15 @@ const Schema = mongoose.Schema;
 const pageSettingSchema = new Schema(
 	{
 		banner: {
-			src: String,
-			public_id: String,
+			image: {
+				src: String,
+				publicId: String,
+			},
 			title: String,
-			link: String,
+			collection: {
+				type: Schema.Types.ObjectId,
+				ref: 'Brand',
+			},
 		},
 	},
 	{ versionKey: false, id: false }

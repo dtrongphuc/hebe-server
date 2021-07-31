@@ -149,7 +149,7 @@ module.exports = {
 
 			let old_images = await ProductImages.find({ product: product._id });
 			let deletePublicIds = old_images
-				.filter((o) => !images.map((i) => i.public_id).includes(o.publicId))
+				.filter((o) => !images.map((i) => i.publicId).includes(o.publicId))
 				?.map((image) => image.publicId);
 
 			let [productImages, productVariants] = await Promise.all([
@@ -194,10 +194,10 @@ module.exports = {
 const mapImages = (images, productId) => {
 	return Promise.all(
 		images.map((image, index) => {
-			const { public_id, url } = image;
+			const { publicId, src } = image;
 			return ProductImages.create({
-				publicId: public_id,
-				src: url,
+				publicId: publicId,
+				src: src,
 				position: index + 1,
 				product: productId,
 			});

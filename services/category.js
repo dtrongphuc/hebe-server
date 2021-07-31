@@ -39,8 +39,8 @@ module.exports = {
 				path,
 				description,
 				image: {
-					publicId: image.public_id,
-					src: image.url,
+					publicId: image.publicId,
+					src: image.src,
 				},
 			});
 

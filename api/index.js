@@ -12,6 +12,7 @@ const pickupLocation = require('./routes/pickupLocation');
 const shippingMethod = require('./routes/shippingMethod');
 const order = require('./routes/order');
 const account = require('./routes/account');
+const settings = require('./routes/settings');
 
 module.exports = () => {
 	const app = Router();
@@ -29,6 +30,7 @@ module.exports = () => {
 	shippingMethod(app);
 	order(app);
 	account(app);
+	settings(app);
 
 	return app;
 };
