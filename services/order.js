@@ -1,5 +1,6 @@
 const Order = require('../models/order.model');
 const Cart = require('../models/cart.model');
+const Product = require('../models/product.model');
 const Variant = require('../models/variant.model');
 const VariantDetail = require('../models/variant_detail.model');
 
@@ -62,6 +63,16 @@ module.exports = {
 				})
 			);
 
+			// update sold quantity
+			await Promise.all(
+				products.map((item) => {
+					return Product.findByIdAndUpdate(item.product, {
+						$inc: {
+							sold: item.quantity,
+						},
+					});
+				})
+			);
 			// clear user cart
 			await Cart.findOneAndDelete({ account: user._id });
 		} catch (error) {

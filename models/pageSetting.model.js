@@ -9,7 +9,7 @@ const pageSettingSchema = new Schema(
 				publicId: String,
 			},
 			title: String,
-			collection: {
+			brand: {
 				type: Schema.Types.ObjectId,
 				ref: 'Brand',
 			},

@@ -4,7 +4,13 @@ const { destroyFiles } = require('../helpers/cloudinary');
 module.exports = {
 	getBanner: async () => {
 		try {
-			let settings = await pageSetting.findOne({});
+			let settings = await pageSetting.findOne({}).populate({
+				path: 'banner',
+				populate: {
+					path: 'brand',
+					select: '_id name path',
+				},
+			});
 			return { banner: settings?.banner || null };
 		} catch (error) {
 			return Promise.reject(error);
@@ -13,7 +19,7 @@ module.exports = {
 
 	editBanner: async (bannerInput) => {
 		try {
-			const { title, collection, image } = bannerInput;
+			const { title, brand, image } = bannerInput;
 			let settings = await pageSetting.findOne({});
 
 			if (
@@ -27,14 +33,14 @@ module.exports = {
 				await pageSetting.create({
 					banner: {
 						title,
-						collection,
+						brand,
 						image,
 					},
 				});
 			} else {
 				settings.banner = {
 					title,
-					collection,
+					brand,
 					image,
 				};
 

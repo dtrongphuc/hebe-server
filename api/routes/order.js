@@ -25,7 +25,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/create', async (req, res, next) => {
+	route.post('/create', isAuth, async (req, res, next) => {
 		try {
 			await createOrder(req.body, req.user);
 			return res.status(200).json({ success: true });
@@ -43,6 +43,7 @@ module.exports = (app) => {
 		}
 	});
 
+	// get orders of user
 	route.get('/by-user', isAuth, async (req, res, next) => {
 		try {
 			const { orders } = await getOrdersOfUser(req.query, req.user);
