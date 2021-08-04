@@ -26,13 +26,17 @@ const discountRuleSchema = new Schema({
 			ref: 'Account',
 		},
 	],
+	customerPurchase: {
+		type: Number,
+		default: 0,
+	},
 	onePerCustomer: {
 		type: Boolean,
 		default: true,
 	},
 	startsAt: Date,
 	endsAt: Date,
-	target_type: {
+	targetType: {
 		type: String,
 		//line_item: The price rule applies to the cart's line items.
 		//shipping_line: The price rule applies to the cart's shipping lines.

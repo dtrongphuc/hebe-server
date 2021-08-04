@@ -12,6 +12,7 @@ const discountSchema = new Schema(
 			type: Number,
 			default: 0,
 		},
+		description: String,
 	},
 	{ timestamps: true }
 );

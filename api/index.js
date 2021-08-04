@@ -13,6 +13,7 @@ const shippingMethod = require('./routes/shippingMethod');
 const order = require('./routes/order');
 const account = require('./routes/account');
 const settings = require('./routes/settings');
+const discount = require('./routes/discount');
 
 module.exports = () => {
 	const app = Router();
@@ -31,6 +32,7 @@ module.exports = () => {
 	order(app);
 	account(app);
 	settings(app);
+	discount(app);
 
 	return app;
 };
