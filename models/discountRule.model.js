@@ -14,7 +14,7 @@ const discountRuleSchema = new Schema({
 		require: true,
 		default: 'all',
 	},
-	entitledProduct: [
+	entitledProducts: [
 		{
 			type: Schema.Types.ObjectId,
 			ref: 'Product',

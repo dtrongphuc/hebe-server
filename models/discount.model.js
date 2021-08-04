@@ -6,13 +6,17 @@ const discountSchema = new Schema(
 		code: String,
 		discountRule: {
 			type: Schema.Types.ObjectId,
-			ref: 'discountRule',
+			ref: 'DiscountRule',
 		},
 		usageCount: {
 			type: Number,
 			default: 0,
 		},
 		description: String,
+		status: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	{ timestamps: true }
 );

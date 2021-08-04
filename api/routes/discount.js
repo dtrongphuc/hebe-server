@@ -1,5 +1,11 @@
 const { Router } = require('express');
-const { getDiscounts, createNewDiscount } = require('../../services/discount');
+const {
+	getDiscounts,
+	createNewDiscount,
+	toggleStatus,
+	getDiscountById,
+	editDiscount,
+} = require('../../services/discount');
 const { validateNewDiscount } = require('../validations/discount');
 const rejection = require('../validations/rejection');
 
@@ -31,4 +37,34 @@ module.exports = (app) => {
 			}
 		}
 	);
+
+	route.get('/toggle-status', async (req, res, next) => {
+		try {
+			let { discount } = await toggleStatus(req.query);
+			if (!discount) return res.status(500).json({ success: false });
+			return res.status(200).json({ success: true });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.get('/by-id', async (req, res, next) => {
+		try {
+			let { discount } = await getDiscountById(req.query);
+			if (!discount) return res.status(500).json({ success: false });
+			return res.status(200).json({ success: true, discount });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.post('/edit', async (req, res, next) => {
+		try {
+			let { discount } = await editDiscount(req.body);
+			if (!discount) return res.status(500).json({ success: false });
+			return res.status(200).json({ success: true, discount });
+		} catch (error) {
+			next(error);
+		}
+	});
 };
