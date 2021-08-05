@@ -5,8 +5,12 @@ const {
 	toggleStatus,
 	getDiscountById,
 	editDiscount,
+	applyDiscount,
 } = require('../../services/discount');
-const { validateNewDiscount } = require('../validations/discount');
+const {
+	validateNewDiscount,
+	validateDiscount,
+} = require('../validations/discount');
 const rejection = require('../validations/rejection');
 
 const route = Router();
@@ -61,6 +65,16 @@ module.exports = (app) => {
 	route.post('/edit', async (req, res, next) => {
 		try {
 			let { discount } = await editDiscount(req.body);
+			if (!discount) return res.status(500).json({ success: false });
+			return res.status(200).json({ success: true, discount });
+		} catch (error) {
+			next(error);
+		}
+	});
+
+	route.post('/apply', validateDiscount, rejection, async (req, res, next) => {
+		try {
+			let discount = await applyDiscount(req.user, req.body);
 			if (!discount) return res.status(500).json({ success: false });
 			return res.status(200).json({ success: true, discount });
 		} catch (error) {

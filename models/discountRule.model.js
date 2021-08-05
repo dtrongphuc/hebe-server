@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const discountRuleSchema = new Schema({
+	allocationMethod: {
+		type: String,
+		enum: ['each', 'across'],
+		default: 'across',
+	},
 	customerSelection: {
 		type: String,
 		enum: ['all', 'prerequisite'],
@@ -49,6 +54,12 @@ const discountRuleSchema = new Schema({
 		enum: ['fixed_amount', 'percentage'],
 		require: true,
 	},
+});
+
+discountRuleSchema.pre('save', function () {
+	if (this.productSelection === 'entitled' && this.targetType === 'line_item') {
+		this.allocationMethod = 'each';
+	}
 });
 
 let DiscountRule = mongoose.model(

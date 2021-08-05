@@ -57,6 +57,11 @@ const orderSchema = new Schema(
 			ref: 'PickupLocation',
 			required: false,
 		},
+		discount: {
+			type: Schema.Types.ObjectId,
+			ref: 'Discount',
+			required: false,
+		},
 		paymentMethod: String,
 		productPrice: Number,
 		shippingPrice: Number,

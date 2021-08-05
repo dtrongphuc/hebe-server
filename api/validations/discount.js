@@ -24,3 +24,20 @@ exports.validateNewDiscount = [
 	check('discount_amount').notEmpty().isInt({ min: 0 }),
 	check('discount_type').notEmpty().isIn(['fixed_amount', 'percentage']),
 ];
+
+// code submit by customer
+exports.validateDiscount = [
+	check('code')
+		.notEmpty()
+		.custom((value) => {
+			return Discount.findOne({ code: value.toUpperCase() }).then((code) => {
+				if (!code) {
+					return Promise.reject('Enter a valid discount code or gift card');
+				}
+
+				if (code.status === false) {
+					return Promise.reject('Enter a valid discount code or gift card');
+				}
+			});
+		}),
+];

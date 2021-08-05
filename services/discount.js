@@ -1,5 +1,7 @@
 const Discount = require('../models/discount.model');
 const DiscountRule = require('../models/discountRule.model');
+const Cart = require('../models/cart.model');
+const Order = require('../models/order.model');
 const moment = require('moment');
 
 module.exports = {
@@ -56,7 +58,7 @@ module.exports = {
 			});
 
 			const discount = await Discount.create({
-				code,
+				code: code.toUpperCase(),
 				description,
 				status,
 				discountRule: rule._id,
@@ -134,7 +136,7 @@ module.exports = {
 			const discount = await Discount.findByIdAndUpdate(
 				id,
 				{
-					code,
+					code: code.toUpperCase(),
 					description,
 					status,
 				},
@@ -162,4 +164,157 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
+
+	applyDiscount: async (user, { code }) => {
+		try {
+			//get cart items of user
+			const cart = await Cart.findOne({
+				user: user?._id,
+			}).populate({
+				path: 'products',
+				populate: {
+					path: 'product',
+				},
+			});
+
+			const discount = await Discount.findOne({
+				code: code.toUpperCase(),
+			}).populate('discountRule');
+			const { discountRule } = discount;
+
+			//check usage limit
+			if (
+				discountRule.usageLimit &&
+				discount.usageCount >= discountRule.usageLimit
+			) {
+				return Promise.reject({
+					location: 'check usage limit',
+					message: 'Enter a valid discount code or gift card',
+				});
+			}
+
+			//check date
+			if (discountRule?.startsAt && discountRule?.endsAt) {
+				if (
+					moment() < moment(discountRule?.startsAt) ||
+					moment() > moment(discountRule?.endsAt)
+				) {
+					return Promise.reject({
+						message: 'Enter a valid discount code or gift card',
+						location: 'check date',
+					});
+				}
+			}
+
+			//check customer purchase
+			if (cart.totalPrice < discountRule.customerPurchase) {
+				return Promise.reject({
+					message: `Minimum order ${discountRule.customerPurchase}$`,
+					location: 'check customer purchase',
+				});
+			}
+
+			//check single use
+			const orderCount = await Order.countDocuments({
+				account: user?._id,
+				discount: discount._id,
+			});
+
+			if (discountRule.onePerCustomer && orderCount >= 1) {
+				return Promise.reject({
+					message: 'Discount have been used',
+					location: 'check single use',
+				});
+			}
+
+			//check customer can use
+			if (
+				discountRule.customerSelection === 'prerequisite' &&
+				!discountRule.prerequisiteCustomers.includes(user?._id)
+			) {
+				return Promise.reject({
+					message: 'Enter a valid discount code or gift card',
+					location: 'check customer can use',
+				});
+			}
+
+			//check order items are target products of discount
+			if (discountRule.productSelection === 'entitled') {
+				let boolArr = cart.products.map((item) =>
+					discountRule.entitledProducts.includes(item.product._id)
+				);
+
+				if (!boolArr.includes(true)) {
+					return Promise.reject({
+						message: 'Enter a valid discount code or gift card',
+						location: 'check order items are target products of discount',
+					});
+				}
+			}
+
+			const rule = await DiscountRule.findById(discountRule._id).populate(
+				'entitledProducts'
+			);
+
+			let display = {
+				code: code.toUpperCase(),
+				description: discount.description,
+				displayPrice: 0,
+				products: [],
+			};
+
+			if (rule.targetType === 'line_item' && rule.allocationMethod === 'each') {
+				let reduction = 0;
+
+				let products = cart.products
+					.filter((item) =>
+						discount.discountRule.entitledProducts.includes(item.product._id)
+					)
+					.map((item) => {
+						let amount = convertType(
+							discount.discountRule.value,
+							item.total,
+							discount.discountRule.valueType
+						);
+
+						reduction += amount;
+
+						return {
+							_id: item.product._id,
+							price: item.total - amount,
+						};
+					});
+
+				display = {
+					...display,
+					displayPrice: reduction,
+					products,
+				};
+			} else if (rule.targetType === 'line_item') {
+				display = {
+					...display,
+					displayPrice:
+						cart.totalPrice -
+						convertType(
+							discount.discountRule.value,
+							cart.totalPrice,
+							discount.discountRule.valueType
+						),
+				};
+			}
+			console.log(display);
+			return discount;
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+};
+
+//convert discount amount to number with discount type
+const convertType = (value, amount, type) => {
+	if (type === 'percentage') {
+		return amount * value * 0.01;
+	}
+
+	return value;
 };
