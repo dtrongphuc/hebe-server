@@ -5,6 +5,7 @@ const ShippingMethod = require('./shippingMethod.model');
 const PickupLocation = require('./pickupLocation.model');
 const autoIncrement = require('mongoose-auto-increment');
 const moment = require('moment-timezone');
+const Discount = require('./discount.model');
 
 const orderSchema = new Schema(
 	{
@@ -65,7 +66,10 @@ const orderSchema = new Schema(
 		paymentMethod: String,
 		productPrice: Number,
 		shippingPrice: Number,
-		voucherPrice: Number,
+		voucherPrice: {
+			type: Number,
+			default: 0,
+		},
 		lastPrice: Number,
 		shipmentStatus: {
 			type: String,
@@ -110,6 +114,19 @@ orderSchema.pre('save', async function () {
 
 			this.shippingPrice = location.price;
 		}
+	}
+
+	if (this.discount) {
+		let discount = await Discount.findById(this.discount).populate(
+			'discountRule'
+		);
+
+		let discountValue = await discount.discountValueByUser(
+			this.account,
+			this.shippingPrice
+		);
+
+		this.voucherPrice = discountValue;
 	}
 
 	if (!this.lastPrice) {

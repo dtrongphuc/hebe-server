@@ -3,6 +3,7 @@ const Cart = require('../models/cart.model');
 const Product = require('../models/product.model');
 const Variant = require('../models/variant.model');
 const VariantDetail = require('../models/variant_detail.model');
+const Discount = require('../models/discount.model');
 
 const itemPerPage = 5;
 
@@ -15,12 +16,20 @@ module.exports = {
 				shippingMethod,
 				pickupLocation,
 				paymentMethod,
+				discountCode,
 			} = orderInput;
 
 			// find products cart of user
 			const { products } = await Cart.findOne({ account: user._id }).select(
 				'-products.createdAt'
 			);
+
+			const discount = discountCode
+				? await Discount.findOne({ code: discountCode.toUpperCase() }).populate(
+						'discountRule'
+				  )
+				: null;
+
 			let paymentStatus = paymentMethod === 'credit-card' ? 'paid' : 'pending';
 
 			await Order.create({
@@ -34,6 +43,7 @@ module.exports = {
 				pickupLocation,
 				paymentMethod,
 				paymentStatus,
+				discount: discount?._id ?? null,
 				voucherPrice: 0,
 			});
 
@@ -68,7 +78,7 @@ module.exports = {
 				products.map((item) => {
 					return Product.findByIdAndUpdate(item.product, {
 						$inc: {
-							sold: item.quantity,
+							sold: +item.quantity,
 						},
 					});
 				})

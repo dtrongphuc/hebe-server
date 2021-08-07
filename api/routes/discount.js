@@ -12,6 +12,7 @@ const {
 	validateDiscount,
 } = require('../validations/discount');
 const rejection = require('../validations/rejection');
+const isAuth = require('../middlewares/isAuth');
 
 const route = Router();
 
@@ -72,13 +73,19 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/apply', validateDiscount, rejection, async (req, res, next) => {
-		try {
-			let discount = await applyDiscount(req.user, req.body);
-			if (!discount) return res.status(500).json({ success: false });
-			return res.status(200).json({ success: true, discount });
-		} catch (error) {
-			next(error);
+	route.post(
+		'/apply',
+		isAuth,
+		validateDiscount,
+		rejection,
+		async (req, res, next) => {
+			try {
+				let discount = await applyDiscount(req.user, req.body);
+				if (!discount) return res.status(500).json({ success: false });
+				return res.status(200).json({ success: true, discount });
+			} catch (error) {
+				next(error);
+			}
 		}
-	});
+	);
 };

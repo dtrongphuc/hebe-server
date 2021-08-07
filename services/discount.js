@@ -3,6 +3,7 @@ const DiscountRule = require('../models/discountRule.model');
 const Cart = require('../models/cart.model');
 const Order = require('../models/order.model');
 const moment = require('moment');
+const { convertDiscountType } = require('../utils/utils');
 
 module.exports = {
 	getDiscounts: async () => {
@@ -169,7 +170,7 @@ module.exports = {
 		try {
 			//get cart items of user
 			const cart = await Cart.findOne({
-				user: user?._id,
+				account: user?._id,
 			}).populate({
 				path: 'products',
 				populate: {
@@ -252,30 +253,30 @@ module.exports = {
 				}
 			}
 
-			const rule = await DiscountRule.findById(discountRule._id).populate(
-				'entitledProducts'
-			);
-
 			let display = {
 				code: code.toUpperCase(),
 				description: discount.description,
-				displayPrice: 0,
+				target: discountRule.targetType,
+				discountAmount: {
+					value: 0,
+					type: 'fixed_amount',
+				},
 				products: [],
 			};
 
-			if (rule.targetType === 'line_item' && rule.allocationMethod === 'each') {
+			if (
+				discountRule.targetType === 'line_item' &&
+				discountRule.allocationMethod === 'each'
+			) {
+				console.log('1');
 				let reduction = 0;
 
 				let products = cart.products
 					.filter((item) =>
-						discount.discountRule.entitledProducts.includes(item.product._id)
+						discountRule.entitledProducts.includes(item.product._id)
 					)
 					.map((item) => {
-						let amount = convertType(
-							discount.discountRule.value,
-							item.total,
-							discount.discountRule.valueType
-						);
+						let amount = convertDiscountType(discountRule, item.total);
 
 						reduction += amount;
 
@@ -287,34 +288,37 @@ module.exports = {
 
 				display = {
 					...display,
-					displayPrice: reduction,
+					discountAmount: {
+						value: reduction,
+						// display type in client
+						type: 'fixed_amount',
+					},
 					products,
 				};
-			} else if (rule.targetType === 'line_item') {
+			} else if (discountRule.targetType === 'line_item') {
+				console.log('2');
+
 				display = {
 					...display,
-					displayPrice:
-						cart.totalPrice -
-						convertType(
-							discount.discountRule.value,
-							cart.totalPrice,
-							discount.discountRule.valueType
-						),
+					discountAmount: {
+						value: convertDiscountType(discountRule, cart.totalPrice),
+						// display type in client
+						type: 'fixed_amount',
+					},
+				};
+			} else {
+				display = {
+					...display,
+					discountAmount: {
+						value: convertDiscountType(discountRule),
+						// display type in client
+						type: discountRule.valueType,
+					},
 				};
 			}
-			console.log(display);
-			return discount;
+			return display;
 		} catch (error) {
 			return Promise.reject(error);
 		}
 	},
-};
-
-//convert discount amount to number with discount type
-const convertType = (value, amount, type) => {
-	if (type === 'percentage') {
-		return amount * value * 0.01;
-	}
-
-	return value;
 };
