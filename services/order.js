@@ -83,6 +83,12 @@ module.exports = {
 					});
 				})
 			);
+
+			if (discount) {
+				discount.usageCount = discount.usageCount + 1;
+				await discount.save();
+			}
+
 			// clear user cart
 			await Cart.findOneAndDelete({ account: user._id });
 		} catch (error) {
