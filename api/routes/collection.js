@@ -8,8 +8,13 @@ module.exports = (app) => {
 
 	route.get('/:path', async (req, res, next) => {
 		try {
-			let { info, products } = await getCollections(req.params, req.query);
-			return res.status(200).json({ success: true, info, products });
+			let { info, products, pagination } = await getCollections(
+				req.params,
+				req.query
+			);
+			return res
+				.status(200)
+				.json({ success: true, info, products, pagination });
 		} catch (error) {
 			next(error);
 		}

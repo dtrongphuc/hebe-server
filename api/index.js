@@ -14,6 +14,7 @@ const order = require('./routes/order');
 const account = require('./routes/account');
 const settings = require('./routes/settings');
 const discount = require('./routes/discount');
+const statistics = require('./routes/statistics');
 
 module.exports = () => {
 	const app = Router();
@@ -33,6 +34,7 @@ module.exports = () => {
 	account(app);
 	settings(app);
 	discount(app);
+	statistics(app);
 
 	return app;
 };
