@@ -11,11 +11,12 @@ const {
 	getDefaultAddress,
 } = require('../../services/address');
 const isAuth = require('../middlewares/isAuth');
+const isUser = require('../middlewares/isUser');
 
 const route = Router();
 
 module.exports = (app) => {
-	app.use('/account/address', isAuth, route);
+	app.use('/account/address', isAuth, isUser, route);
 
 	//POST NEW ADDRESS
 	route.post('/', validateAddress, rejection, async (req, res, next) => {

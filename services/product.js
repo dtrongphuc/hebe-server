@@ -12,7 +12,8 @@ module.exports = {
 			let products = await Product.find({})
 				.populate('images')
 				.populate('variants')
-				.limit(10);
+				.limit(21)
+				.sort({ created_at: 'desc' });
 			return { products };
 		} catch (error) {
 			return Promise.reject(error);

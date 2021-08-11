@@ -14,6 +14,7 @@ const {
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
 const isAdmin = require('../middlewares/isAdmin');
+const isUser = require('../middlewares/isUser');
 const route = Router();
 
 module.exports = (app) => {
@@ -55,7 +56,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/by-id', isAuth, async (req, res, next) => {
+	route.get('/by-id', isAuth, isUser, async (req, res, next) => {
 		try {
 			let { discount } = await getDiscountById(req.query);
 			if (!discount) return res.status(500).json({ success: false });
@@ -78,6 +79,7 @@ module.exports = (app) => {
 	route.post(
 		'/apply',
 		isAuth,
+		isUser,
 		validateDiscount,
 		rejection,
 		async (req, res, next) => {

@@ -9,6 +9,7 @@ const {
 } = require('../../services/order');
 const isAuth = require('../middlewares/isAuth');
 const isAdmin = require('../middlewares/isAdmin');
+const isUser = require('../middlewares/isUser');
 const route = Router();
 
 module.exports = (app) => {
@@ -24,7 +25,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/create', async (req, res, next) => {
+	route.post('/create', isUser, async (req, res, next) => {
 		try {
 			await createOrder(req.body, req.user);
 			return res.status(200).json({ success: true });
@@ -33,7 +34,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/count', async (req, res, next) => {
+	route.get('/count', isUser, async (req, res, next) => {
 		try {
 			const { count } = await countOrder(req.user);
 			return res.status(200).json({ success: true, count });
@@ -43,7 +44,7 @@ module.exports = (app) => {
 	});
 
 	// get orders of user
-	route.get('/by-user', async (req, res, next) => {
+	route.get('/by-user', isUser, async (req, res, next) => {
 		try {
 			const { orders, pagination } = await getOrdersOfUser(req.query, req.user);
 			return res.status(200).json({ success: true, orders, pagination });

@@ -5,17 +5,18 @@ const {
 	updateCart,
 	checkProductQuantity,
 } = require('../../services/cart');
-const isAuth = require('../middlewares/isAuth');
 const {
 	validateAddToCart,
 	validateUpdateCart,
 } = require('../validations/cart');
 const rejection = require('../validations/rejection');
+const isAuth = require('../middlewares/isAuth');
+const isUser = require('../middlewares/isUser');
 
 const route = Router();
 
 module.exports = (app) => {
-	app.use('/cart', isAuth, route);
+	app.use('/cart', isAuth, isUser, route);
 
 	route.get('/', async (req, res, next) => {
 		try {

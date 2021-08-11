@@ -3,7 +3,7 @@ const { SignUp, SignIn } = require('../../services/auth');
 const { validateRegister, validateLogin } = require('../validations/account');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
-
+const isUser = require('../middlewares/isUser');
 const route = Router();
 
 module.exports = (app) => {
@@ -55,7 +55,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/auth', isAuth, (req, res) => {
+	route.get('/auth', isAuth, isUser, (req, res) => {
 		return res.status(200).json({
 			loggedIn: true,
 			firstName: req.user.firstname,
@@ -68,7 +68,6 @@ module.exports = (app) => {
 	route.get('/logout', (req, res) => {
 		res.clearCookie('token');
 
-		console.log('logout');
 		return res.status(200).json({
 			success: true,
 		});

@@ -13,6 +13,19 @@ const monthsOfTheYear = () => {
 	}));
 };
 
+const convertNumber = (number) => {
+	if (
+		!number ||
+		Number.isNaN(number) ||
+		number == Number.POSITIVE_INFINITY ||
+		number == Number.NEGATIVE_INFINITY
+	) {
+		return 0;
+	}
+
+	return number.toFixed();
+};
+
 module.exports = {
 	getRevenue: async () => {
 		try {
@@ -110,27 +123,27 @@ module.exports = {
 				0
 			);
 
+			let totalOrdersComparison =
+				((inMonth.length - previousMonth.length) * 100) / previousMonth.length;
+
+			let averagePriceComparison =
+				((inMonthAverage - previousMonthAverage) * 100) / previousMonthAverage;
+
+			let productSoldComparison =
+				((inMonthSold - previousMonthSold) * 100) / previousMonthSold;
+
 			let summary = {
 				totalOrders: {
 					value: inMonth.length,
-					comparison: (
-						((inMonth.length - previousMonth.length) * 100) /
-						previousMonth.length
-					).toFixed(),
+					comparison: convertNumber(totalOrdersComparison),
 				},
 				averagePrice: {
 					value: inMonthAverage,
-					comparison: (
-						((inMonthAverage - previousMonthAverage) * 100) /
-						previousMonthAverage
-					).toFixed(),
+					comparison: convertNumber(averagePriceComparison),
 				},
 				productSold: {
 					value: inMonthSold,
-					comparison: (
-						((inMonthSold - previousMonthSold) * 100) /
-						previousMonthSold
-					).toFixed(),
+					comparison: convertNumber(productSoldComparison),
 				},
 			};
 
