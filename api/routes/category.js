@@ -9,7 +9,8 @@ const {
 } = require('../../services/category');
 const { validateCategory } = require('../validations/category');
 const rejection = require('../validations/rejection');
-
+const isAuth = require('../middlewares/isAuth');
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
@@ -33,18 +34,25 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/add', validateCategory, rejection, async (req, res, next) => {
-		try {
-			const { newCategory } = await addNewCategory(req.body);
-			if (!newCategory) return res.status(500).json({ success: false });
+	route.post(
+		'/add',
+		isAuth,
+		isAdmin,
+		validateCategory,
+		rejection,
+		async (req, res, next) => {
+			try {
+				const { newCategory } = await addNewCategory(req.body);
+				if (!newCategory) return res.status(500).json({ success: false });
 
-			return res.status(200).json({ success: true });
-		} catch (error) {
-			next(error);
+				return res.status(200).json({ success: true });
+			} catch (error) {
+				next(error);
+			}
 		}
-	});
+	);
 
-	route.get('/toggle-active', async (req, res, next) => {
+	route.get('/toggle-active', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			await toggleActive(req.query);
 			return res.status(200).json({ success: true });
@@ -64,6 +72,8 @@ module.exports = (app) => {
 
 	route.post(
 		'/edit/:path',
+		isAuth,
+		isAdmin,
 		validateCategory,
 		rejection,
 		async (req, res, next) => {

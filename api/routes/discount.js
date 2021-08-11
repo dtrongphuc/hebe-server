@@ -13,13 +13,13 @@ const {
 } = require('../validations/discount');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
-
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
 	app.use('/discount', route);
 
-	route.get('/all', async (req, res, next) => {
+	route.get('/all', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			let { discounts } = await getDiscounts();
 			return res.status(200).json({ success: true, discounts });
@@ -30,6 +30,8 @@ module.exports = (app) => {
 
 	route.post(
 		'/create',
+		isAuth,
+		isAdmin,
 		validateNewDiscount,
 		rejection,
 		async (req, res, next) => {
@@ -43,7 +45,7 @@ module.exports = (app) => {
 		}
 	);
 
-	route.get('/toggle-status', async (req, res, next) => {
+	route.get('/toggle-status', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			let { discount } = await toggleStatus(req.query);
 			if (!discount) return res.status(500).json({ success: false });
@@ -53,7 +55,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/by-id', async (req, res, next) => {
+	route.get('/by-id', isAuth, async (req, res, next) => {
 		try {
 			let { discount } = await getDiscountById(req.query);
 			if (!discount) return res.status(500).json({ success: false });
@@ -63,7 +65,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/edit', async (req, res, next) => {
+	route.post('/edit', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			let { discount } = await editDiscount(req.body);
 			if (!discount) return res.status(500).json({ success: false });

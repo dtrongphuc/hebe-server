@@ -10,13 +10,12 @@ const {
 } = require('../../services/brand');
 const { validateBrand } = require('../validations/brand');
 const rejection = require('../validations/rejection');
-
+const isAuth = require('../middlewares/isAuth');
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
 	app.use('/brand', route);
-
-	// route.post('/create', upload.single('image'), brandController.createNewBrand);
 
 	route.get('/all', async (req, res, next) => {
 		try {
@@ -36,7 +35,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/toggle-active', async (req, res, next) => {
+	route.get('/toggle-active', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			await toggleActive(req.query);
 			return res.status(200).json({ success: true });
@@ -64,20 +63,29 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/add', validateBrand, rejection, async (req, res, next) => {
-		try {
-			const { newBrand } = await addNewBrand(req.body);
-			if (!newBrand) return res.status(500).json({ success: false });
+	route.post(
+		'/add',
+		isAuth,
+		isAdmin,
+		validateBrand,
+		rejection,
+		async (req, res, next) => {
+			try {
+				const { newBrand } = await addNewBrand(req.body);
+				if (!newBrand) return res.status(500).json({ success: false });
 
-			return res.status(200).json({ success: true });
-		} catch (error) {
-			next(error);
+				return res.status(200).json({ success: true });
+			} catch (error) {
+				next(error);
+			}
 		}
-	});
+	);
 
 	//post edit
 	route.post(
 		'/edit/:path',
+		isAuth,
+		isAdmin,
 		validateBrand,
 		rejection,
 		async (req, res, next) => {

@@ -4,11 +4,12 @@ const {
 	requestSignature,
 } = require('../../services/cloudianry');
 const { cloud } = require('../../config');
-
+const isAuth = require('../middlewares/isAuth');
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
-	app.use('/cloudinary', route);
+	app.use('/cloudinary', isAuth, isAdmin, route);
 
 	route.post('/image/upload/signature', async (req, res, next) => {
 		try {

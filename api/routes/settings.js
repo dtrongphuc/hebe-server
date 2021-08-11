@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { getBanner, editBanner } = require('../../services/settings');
-const rejection = require('../validations/rejection');
-
+const isAuth = require('../middlewares/isAuth');
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
@@ -16,7 +16,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/banner', async (req, res, next) => {
+	route.post('/banner', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			await editBanner(req.body);
 			return res.status(200).json({ success: true });

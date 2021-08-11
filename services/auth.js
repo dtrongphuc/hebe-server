@@ -49,6 +49,7 @@ module.exports = {
 				firstName: account.firstname,
 				lastName: account.lastname,
 				email: account.email,
+				role: account.role,
 			};
 		} catch (error) {
 			console.log(error);

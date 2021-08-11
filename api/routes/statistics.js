@@ -1,9 +1,11 @@
 const { Router } = require('express');
 const { getRevenue, summaryMonth } = require('../../services/statistics');
+const isAuth = require('../middlewares/isAuth');
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
-	app.use('/statistics', route);
+	app.use('/statistics', isAuth, isAdmin, route);
 
 	route.get('/revenue', async (req, res, next) => {
 		try {

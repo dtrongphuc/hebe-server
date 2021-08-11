@@ -33,7 +33,9 @@ module.exports = (app) => {
 	// LOGIN
 	route.post('/login', validateLogin, rejection, async (req, res, next) => {
 		try {
-			const { token, firstName, lastName, email } = await SignIn(req.body);
+			const { token, firstName, lastName, email, role } = await SignIn(
+				req.body
+			);
 
 			res.cookie('token', token, {
 				httpOnly: true,
@@ -42,10 +44,11 @@ module.exports = (app) => {
 
 			return res.status(200).json({
 				success: true,
-				msg: 'Đăng nhập thành công',
+				msg: 'Login successful',
 				firstName,
 				lastName,
 				email,
+				role,
 			});
 		} catch (error) {
 			next(error);
@@ -58,6 +61,7 @@ module.exports = (app) => {
 			firstName: req.user.firstname,
 			lastName: req.user.lastname,
 			email: req.user.email,
+			role: req.user.role,
 		});
 	});
 };

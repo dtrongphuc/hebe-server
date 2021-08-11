@@ -10,8 +10,8 @@ const {
 } = require('../../services/product');
 const rejection = require('../validations/rejection');
 const { validateProduct } = require('../validations/product');
-// const isAuth = require('../middlewares/isAuth');
-
+const isAuth = require('../middlewares/isAuth');
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
@@ -52,7 +52,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/toggle-active', async (req, res, next) => {
+	route.get('/toggle-active', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			await toggleActive(req.query);
 			return res.status(200).json({ success: true });
@@ -74,20 +74,29 @@ module.exports = (app) => {
 		}
 	});
 	// route.get('/edit/id/:productId', productController.getEditProduct);
-	route.post('/create', validateProduct, rejection, async (req, res, next) => {
-		try {
-			await createNewProduct(req.body);
+	route.post(
+		'/create',
+		isAuth,
+		isAdmin,
+		validateProduct,
+		rejection,
+		async (req, res, next) => {
+			try {
+				await createNewProduct(req.body);
 
-			return res.status(200).json({
-				success: true,
-			});
-		} catch (error) {
-			next(error);
+				return res.status(200).json({
+					success: true,
+				});
+			} catch (error) {
+				next(error);
+			}
 		}
-	});
+	);
 
 	route.post(
 		'/edit/:path',
+		isAuth,
+		isAdmin,
 		validateProduct,
 		rejection,
 		async (req, res, next) => {

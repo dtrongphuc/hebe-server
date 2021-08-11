@@ -7,16 +7,15 @@ const {
 	getOrders,
 	getOrderById,
 } = require('../../services/order');
-const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
-
+const isAdmin = require('../middlewares/isAdmin');
 const route = Router();
 
 module.exports = (app) => {
-	app.use('/orders', route);
+	app.use('/orders', isAuth, route);
 
 	// get orders
-	route.get('/', async (req, res, next) => {
+	route.get('/', isAdmin, async (req, res, next) => {
 		try {
 			const { orders } = await getOrders();
 			return res.status(200).json({ success: true, orders });
@@ -25,7 +24,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.post('/create', isAuth, async (req, res, next) => {
+	route.post('/create', async (req, res, next) => {
 		try {
 			await createOrder(req.body, req.user);
 			return res.status(200).json({ success: true });
@@ -34,7 +33,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/count', isAuth, async (req, res, next) => {
+	route.get('/count', async (req, res, next) => {
 		try {
 			const { count } = await countOrder(req.user);
 			return res.status(200).json({ success: true, count });
@@ -44,7 +43,7 @@ module.exports = (app) => {
 	});
 
 	// get orders of user
-	route.get('/by-user', isAuth, async (req, res, next) => {
+	route.get('/by-user', async (req, res, next) => {
 		try {
 			const { orders } = await getOrdersOfUser(req.query, req.user);
 			return res.status(200).json({ success: true, orders });
@@ -53,7 +52,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/max-page', isAuth, async (req, res, next) => {
+	route.get('/max-page', async (req, res, next) => {
 		try {
 			const { maxPage } = await countPagination(req.user);
 			return res.status(200).json({ success: true, maxPage });
@@ -63,7 +62,7 @@ module.exports = (app) => {
 	});
 
 	// get order by id
-	route.get('/by-id', async (req, res, next) => {
+	route.get('/by-id', isAdmin, async (req, res, next) => {
 		try {
 			const { order } = await getOrderById(req.query);
 			return res.status(200).json({ success: true, order });

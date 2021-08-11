@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
+const isAdmin = require('../middlewares/isAdmin');
 const {
 	getUserAccounts,
 	getAccountById,
@@ -11,7 +12,7 @@ const { validateEditUserAccount } = require('../validations/account');
 const route = Router();
 
 module.exports = (app) => {
-	app.use('/account', route);
+	app.use('/account', isAuth, isAdmin, route);
 
 	// get user accounts
 	route.get('/users', async (req, res, next) => {
