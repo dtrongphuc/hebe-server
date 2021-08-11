@@ -109,7 +109,7 @@ module.exports = {
 		try {
 			const orders = await Order.find({ account: user._id })
 				.limit(itemPerPage)
-				.skip((page - 1) * itemPerPage)
+				.skip((+page - 1) * itemPerPage)
 				.populate([
 					{
 						path: 'products',
@@ -143,7 +143,16 @@ module.exports = {
 				])
 				.select('-account');
 
-			return { orders };
+			const maxPage = Math.ceil(orders.length / +itemPerPage);
+
+			return {
+				orders: orders,
+				pagination: {
+					current: +page,
+					max: maxPage,
+					limit: itemPerPage,
+				},
+			};
 		} catch (error) {
 			return Promise.reject(error);
 		}

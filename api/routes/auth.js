@@ -64,4 +64,13 @@ module.exports = (app) => {
 			role: req.user.role,
 		});
 	});
+
+	route.get('/logout', (req, res) => {
+		res.clearCookie('token');
+
+		console.log('logout');
+		return res.status(200).json({
+			success: true,
+		});
+	});
 };

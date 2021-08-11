@@ -45,17 +45,8 @@ module.exports = (app) => {
 	// get orders of user
 	route.get('/by-user', async (req, res, next) => {
 		try {
-			const { orders } = await getOrdersOfUser(req.query, req.user);
-			return res.status(200).json({ success: true, orders });
-		} catch (error) {
-			next(error);
-		}
-	});
-
-	route.get('/max-page', async (req, res, next) => {
-		try {
-			const { maxPage } = await countPagination(req.user);
-			return res.status(200).json({ success: true, maxPage });
+			const { orders, pagination } = await getOrdersOfUser(req.query, req.user);
+			return res.status(200).json({ success: true, orders, pagination });
 		} catch (error) {
 			next(error);
 		}
