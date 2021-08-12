@@ -17,9 +17,9 @@ module.exports = {
 			const { firstname, lastname, email } = userInput;
 
 			let account = await Account.create({
-				firstname,
-				lastname,
-				email,
+				firstname: firstname.trim(),
+				lastname: lastname.trim(),
+				email: email.trim(),
 				password: hashedPw,
 			});
 			let token = jwtHelper.createToken({
@@ -101,6 +101,42 @@ module.exports = {
 			return {
 				message: `We've sent you an email with a link to update your password.`,
 			};
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	updatePasswordWithToken: async ({ token, password }) => {
+		try {
+			let salt = config.password.salt;
+
+			const account = await Account.findOne({ verifyCode: token });
+			const hashedPw = await bcrypt.hash(password, salt);
+			account.verifyCode = '';
+			account.password = hashedPw;
+
+			await account.save();
+
+			return {
+				message: 'Password reset successful',
+			};
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	},
+
+	getEmailByToken: async ({ token }) => {
+		try {
+			const account = await Account.findOne({ verifyCode: token }).select(
+				'email'
+			);
+			if (!account) {
+				return Promise.reject({
+					message: 'Token invalid',
+				});
+			}
+
+			return { email: account.email };
 		} catch (error) {
 			return Promise.reject(error);
 		}

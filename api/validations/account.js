@@ -83,3 +83,14 @@ exports.validateExistEmail = [
 			});
 		}),
 ];
+
+exports.validateResetPassword = [
+	check('password').notEmpty().withMessage('Please enter your password'),
+	check('confirmPw').custom((value, { req }) => {
+		if (value !== req.body.password) {
+			return Promise.reject('New password and confirm password does not match');
+		}
+
+		return true;
+	}),
+];

@@ -1,9 +1,16 @@
 const { Router } = require('express');
-const { signUp, signIn, createResetToken } = require('../../services/auth');
+const {
+	signUp,
+	signIn,
+	createResetToken,
+	updatePasswordWithToken,
+	getEmailByToken,
+} = require('../../services/auth');
 const {
 	validateRegister,
 	validateLogin,
 	validateExistEmail,
+	validateResetPassword,
 } = require('../validations/account');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
@@ -15,7 +22,7 @@ module.exports = (app) => {
 
 	route.post('/signup', validateRegister, rejection, async (req, res, next) => {
 		try {
-			const { token, firstName, lastName, email } = await SignUp(req.body);
+			const { token, firstName, lastName, email } = await signUp(req.body);
 
 			res.cookie('token', token, {
 				httpOnly: true,
@@ -37,7 +44,7 @@ module.exports = (app) => {
 	// LOGIN
 	route.post('/login', validateLogin, rejection, async (req, res, next) => {
 		try {
-			const { token, firstName, lastName, email, role } = await SignIn(
+			const { token, firstName, lastName, email, role } = await signIn(
 				req.body
 			);
 
@@ -94,4 +101,34 @@ module.exports = (app) => {
 			}
 		}
 	);
+
+	route.post(
+		'/password/update',
+		validateResetPassword,
+		rejection,
+		async (req, res, next) => {
+			try {
+				const result = await updatePasswordWithToken(req.body);
+
+				return res.status(200).json({
+					success: result,
+				});
+			} catch (error) {
+				next(error);
+			}
+		}
+	);
+
+	route.get('/email', async (req, res, next) => {
+		try {
+			const { email } = await getEmailByToken(req.query);
+
+			return res.status(200).json({
+				success: true,
+				email,
+			});
+		} catch (error) {
+			next(error);
+		}
+	});
 };
