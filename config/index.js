@@ -5,8 +5,11 @@ module.exports = {
 		prefix: '/api',
 	},
 	cors: {
-		origin: process.env.CLIENT_URI || 'http://localhost:3000',
+		origin: process.env.CLIENT_URL || 'http://localhost:3000',
 		credentials: true,
+	},
+	client: {
+		url: process.env.CLIENT_URL,
 	},
 	cloud: {
 		name: 'du1435df8',
@@ -14,5 +17,9 @@ module.exports = {
 	},
 	password: {
 		salt: 10,
+	},
+	email: {
+		user: process.env.MAIL_USER,
+		password: process.env.MAIL_PASSWORD,
 	},
 };

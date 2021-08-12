@@ -68,3 +68,18 @@ exports.validateEditUserAccount = [
 	check('first_name').notEmpty().withMessage('Please enter your first name'),
 	check('last_name').notEmpty().withMessage('Please enter your last name'),
 ];
+
+exports.validateExistEmail = [
+	check('email')
+		.notEmpty()
+		.withMessage('Please enter your email')
+		.isEmail()
+		.withMessage('Invalid email format')
+		.custom((value) => {
+			return Account.findOne({ email: value }).then((user) => {
+				if (!user) {
+					return Promise.reject('Email does not exist');
+				}
+			});
+		}),
+];

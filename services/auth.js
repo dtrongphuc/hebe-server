@@ -2,9 +2,11 @@ const bcrypt = require('bcrypt');
 const jwtHelper = require('../helpers/jwt');
 const Account = require('../models/account.model');
 const config = require('../config');
+const hbs = require('nodemailer-express-handlebars');
+const transporter = require('../helpers/mailer');
 
 module.exports = {
-	SignUp: async (userInput) => {
+	signUp: async (userInput) => {
 		try {
 			let salt = config.password.salt;
 
@@ -35,7 +37,7 @@ module.exports = {
 			return Promise.reject(error);
 		}
 	},
-	SignIn: async (userInput) => {
+	signIn: async (userInput) => {
 		try {
 			const account = await Account.findOne({ email: userInput?.email });
 
@@ -53,6 +55,53 @@ module.exports = {
 			};
 		} catch (error) {
 			console.log(error);
+			return Promise.reject(error);
+		}
+	},
+
+	createResetToken: async ({ email }) => {
+		try {
+			const account = await Account.findOne({ email });
+			const { randomBytes } = await import('crypto');
+
+			const token = randomBytes(48).toString('hex');
+			account.verifyCode = token;
+
+			let options = {
+				viewEngine: {
+					extname: '.handlebars',
+					defaultLayout: '',
+					layoutsDir: '',
+				},
+				viewPath: 'templates/',
+			};
+			transporter.use('compile', hbs(options));
+
+			let mail = {
+				from: config.email.user,
+				to: email,
+				subject: 'Customer account password reset',
+				template: 'reset-password',
+				context: {
+					token: token,
+					url_store: config.client.url,
+					url_reset: `${config.client.url}/account/reset/${token}`,
+				},
+				attachments: [
+					{
+						filename: 'HEBE_Logo.png',
+						path: './resources/images/HEBE_Logo.png',
+						cid: 'unique@cid',
+					},
+				],
+			};
+			let info = await transporter.sendMail(mail);
+			console.log('Message sent: %s', info.messageId);
+			await account.save();
+			return {
+				message: `We've sent you an email with a link to update your password.`,
+			};
+		} catch (error) {
 			return Promise.reject(error);
 		}
 	},

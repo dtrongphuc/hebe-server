@@ -9,7 +9,7 @@ module.exports = (app) => {
 	app.use(cookies());
 	app.use(express.urlencoded({ extended: true }));
 	app.use(express.json());
-
+	app.use(express.static('resources'));
 	app.use(config.api.prefix, routes());
 
 	//error handlers

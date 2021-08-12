@@ -1,6 +1,10 @@
 const { Router } = require('express');
-const { SignUp, SignIn } = require('../../services/auth');
-const { validateRegister, validateLogin } = require('../validations/account');
+const { signUp, signIn, createResetToken } = require('../../services/auth');
+const {
+	validateRegister,
+	validateLogin,
+	validateExistEmail,
+} = require('../validations/account');
 const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
 const isUser = require('../middlewares/isUser');
@@ -72,4 +76,22 @@ module.exports = (app) => {
 			success: true,
 		});
 	});
+
+	route.post(
+		'/password/reset',
+		validateExistEmail,
+		rejection,
+		async (req, res, next) => {
+			try {
+				const { message } = await createResetToken(req.body);
+
+				return res.status(200).json({
+					success: true,
+					message,
+				});
+			} catch (error) {
+				next(error);
+			}
+		}
+	);
 };
