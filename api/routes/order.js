@@ -3,7 +3,6 @@ const {
 	createOrder,
 	countOrder,
 	getOrdersOfUser,
-	countPagination,
 	getOrders,
 	getOrderById,
 } = require('../../services/order');

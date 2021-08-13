@@ -12,9 +12,13 @@ module.exports = {
 	client: {
 		url: process.env.CLIENT_URL,
 	},
+	auth: {
+		secretKey: process.env.SECRET_KEY,
+		expires: process.env.EXPIRES,
+	},
 	cloud: {
-		name: 'du1435df8',
-		api_key: '588658126729115',
+		name: process.env.CLOUD_NAME,
+		api_key: process.env.CLOUD_API,
 	},
 	password: {
 		salt: 10,
