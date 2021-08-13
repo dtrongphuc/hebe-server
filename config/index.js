@@ -4,7 +4,7 @@ module.exports = {
 	api: {
 		prefix: '/api',
 	},
-	mongodb: process.env.mongodb || 'mongodb://localhost:27017/hebe',
+	mongodb: process.env.MONGODB || 'mongodb://localhost:27017/hebe',
 	cors: {
 		origin: process.env.CLIENT_URL || 'http://localhost:3000',
 		credentials: true,
