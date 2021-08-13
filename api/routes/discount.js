@@ -56,7 +56,7 @@ module.exports = (app) => {
 		}
 	});
 
-	route.get('/by-id', isAuth, isUser, async (req, res, next) => {
+	route.get('/by-id', isAuth, isAdmin, async (req, res, next) => {
 		try {
 			let { discount } = await getDiscountById(req.query);
 			if (!discount) return res.status(500).json({ success: false });
