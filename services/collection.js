@@ -55,9 +55,8 @@ module.exports = {
 			}
 
 			let sortField = sortKeywords.find(
-				(item) => item.name === sort.toLowerCase()
+				(item) => item.query === sort.toLowerCase()
 			);
-
 			const products = await Product.find({
 				$or: [
 					{
