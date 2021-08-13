@@ -23,7 +23,9 @@ module.exports = {
 
 	getAllProducts: async () => {
 		try {
-			const products = await Product.find({}).populate('brand category');
+			const products = await Product.find({})
+				.populate('brand category')
+				.sort({ created_at: 'desc' });
 			return { products };
 		} catch (error) {
 			return Promise.reject(error);

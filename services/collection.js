@@ -74,6 +74,7 @@ module.exports = {
 				],
 			})
 				.populate('images')
+				.populate('brand')
 				.sort(sortField?.sort)
 				.skip((+page - 1) * limit)
 				.limit(+limit);
