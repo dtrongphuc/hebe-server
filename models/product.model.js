@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Variant = require('./variant.model');
 
 const productSchema = new Schema(
 	{
@@ -34,6 +35,10 @@ const productSchema = new Schema(
 				ref: 'Variant',
 			},
 		],
+		quantity: {
+			type: Number,
+			default: 0,
+		},
 		images: [
 			{
 				type: Schema.Types.ObjectId,
@@ -51,6 +56,14 @@ const productSchema = new Schema(
 	},
 	{ timestamps: { createdAt: 'created_at' }, versionKey: false }
 );
+
+productSchema.pre('save', async function () {
+	let variants = await Promise.all(
+		this.variants.map((variant) => Variant.findById(variant))
+	);
+
+	this.quantity = variants.reduce((total, current) => total + current.stock, 0);
+});
 
 let Product = mongoose.model('Product', productSchema, 'products');
 
