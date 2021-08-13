@@ -16,6 +16,7 @@ const rejection = require('../validations/rejection');
 const isAuth = require('../middlewares/isAuth');
 const isUser = require('../middlewares/isUser');
 const route = Router();
+const { auth } = require('../../config');
 
 module.exports = (app) => {
 	app.use('/account', route);
@@ -25,8 +26,9 @@ module.exports = (app) => {
 			const { token, firstName, lastName, email } = await signUp(req.body);
 
 			res.cookie('token', token, {
-				httpOnly: true,
-				maxAge: 24 * 60 * 60 * 1000, // 24 hours
+				maxAge: +auth.expires,
+				sameSite: auth.sameSite,
+				secure: auth.secure,
 			});
 
 			return res.status(200).json({
@@ -49,8 +51,9 @@ module.exports = (app) => {
 			);
 
 			res.cookie('token', token, {
-				httpOnly: true,
-				maxAge: 24 * 60 * 60 * 1000, // 24 hours
+				maxAge: +auth.expires,
+				sameSite: auth.sameSite,
+				secure: auth.secure,
 			});
 
 			return res.status(200).json({

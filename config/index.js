@@ -15,6 +15,8 @@ module.exports = {
 	auth: {
 		secretKey: process.env.SECRET_KEY,
 		expires: process.env.EXPIRES,
+		secure: process.env.COOKIES_SECURE || false,
+		sameSite: process.env.COOKIES_SAMESITE || false,
 	},
 	cloud: {
 		name: process.env.CLOUD_NAME,
