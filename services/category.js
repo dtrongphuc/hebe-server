@@ -5,7 +5,7 @@ const { destroyFiles } = require('../helpers/cloudinary');
 module.exports = {
 	getAllCategories: async () => {
 		try {
-			let categories = await Category.find({}).sort({ name: 'desc' });
+			let categories = await Category.find({}).sort({ name: 'asc' });
 
 			return {
 				categories,
@@ -19,7 +19,7 @@ module.exports = {
 		try {
 			let categories = await Category.find({ showing: true })
 				.select('-_id name path')
-				.sort({ name: 'desc' });
+				.sort({ name: 'asc' });
 
 			return {
 				categories,

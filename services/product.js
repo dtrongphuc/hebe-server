@@ -137,7 +137,6 @@ module.exports = {
 				variants,
 				images,
 			} = productInput;
-
 			let product = await Product.findOneAndUpdate(
 				{ path: path },
 				{
@@ -156,7 +155,7 @@ module.exports = {
 				.filter((o) => !images.map((i) => i.publicId).includes(o.publicId))
 				?.map((image) => image.publicId);
 
-			let [productImages, productVariants] = await Promise.all([
+			let [productImages, productVariants, ...rest] = await Promise.all([
 				mapImages(images, product._id),
 				mapVariants(variants, product._id),
 				destroyFiles(deletePublicIds),
@@ -169,9 +168,12 @@ module.exports = {
 				ProductImages.deleteMany({ product: product._id }),
 			]);
 
+			console.log(productImages);
+			console.log(productVariants);
+
 			product.variants = productVariants.map((variant) => variant._id);
 			product.images = productImages.map((image) => image._id);
-			product.save();
+			await product.save();
 
 			return {
 				success: true,

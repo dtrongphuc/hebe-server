@@ -34,7 +34,9 @@ module.exports = {
 	},
 	brandsLink: async () => {
 		try {
-			let brands = await Brand.find({ showing: true }).select('-_id name path');
+			let brands = await Brand.find({ showing: true })
+				.select('-_id name path')
+				.sort({ name: 'asc' });
 
 			return {
 				brands,
