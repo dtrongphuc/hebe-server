@@ -9,7 +9,7 @@ const { destroyFiles } = require('../helpers/cloudinary');
 module.exports = {
 	getFrontPageProducts: async () => {
 		try {
-			let products = await Product.find({})
+			let products = await Product.find({ showing: true })
 				.populate('images')
 				.populate('variants')
 				.populate('brand')
@@ -23,7 +23,7 @@ module.exports = {
 
 	getAllProducts: async () => {
 		try {
-			const products = await Product.find({})
+			const products = await Product.find({ showing: true })
 				.populate('brand category')
 				.sort({ created_at: 'desc' });
 			return { products };
