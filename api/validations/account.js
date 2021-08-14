@@ -13,6 +13,9 @@ exports.validateLogin = [
 				if (!user) {
 					return Promise.reject('Email does not exist');
 				}
+				if (!user.active) {
+					return Promise.reject('Account has been blocked');
+				}
 			});
 		}),
 	check('password')
