@@ -159,12 +159,6 @@ module.exports = {
 				mapImages(images, product._id),
 				mapVariants(variants, product._id),
 				destroyFiles(deletePublicIds),
-				Variant.deleteMany({ product: product._id }),
-				VariantDetail.deleteMany({
-					_id: {
-						$in: product.variants?.map((variant) => variant.details).flat(),
-					},
-				}),
 				ProductImages.deleteMany({ product: product._id }),
 			]);
 
