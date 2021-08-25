@@ -1,0 +1,32 @@
+
+# Tech
+- Expressjs
+- Mongodb
+
+# Enviroment
+CLOUDINARY_URL=
+
+CLOUD_NAME=
+
+CLOUD_API=
+
+SECRET_KEY=
+
+EXPIRES=
+
+MAIL_USER=
+
+MAIL_PASSWORD=
+
+CLIENT_URL=
+
+MONGODB=
+
+COOKIES_SECURE=
+
+COOKIES_SAMESITE=
+
+
+# Run
+
+    npm run dev
