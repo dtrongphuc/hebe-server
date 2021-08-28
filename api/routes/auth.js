@@ -80,6 +80,7 @@ module.exports = (app) => {
 	});
 
 	route.get('/logout', (req, res) => {
+		req.logout();
 		res.clearCookie('token');
 
 		return res.status(200).json({
