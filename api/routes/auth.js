@@ -81,8 +81,9 @@ module.exports = (app) => {
 
 	route.get('/logout', (req, res) => {
 		req.logout();
-		res.cookie('token', '', {
-			maxAge: 0,
+		res.clearCookie('token', {
+			sameSite: auth.sameSite,
+			secure: auth.secure,
 		});
 
 		return res.status(200).json({
